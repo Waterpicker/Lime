@@ -51,11 +51,17 @@ public class VulkanExample {
 
     private void loadModels() {
 
-        File modelFile = new File(ClassLoader.getSystemClassLoader().getResource("models/chalet.obj").getFile());
+        File chaletModelFile = new File(ClassLoader.getSystemClassLoader().getResource("models/chalet.obj").getFile());
+        File dragonModelFile = new File(ClassLoader.getSystemClassLoader().getResource("models/dragon.obj").getFile());
 
-        VKModelLoader.VKMesh model = VKModelLoader.loadModel(modelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
-        VulkanRenderObject object = new VulkanRenderObject(model, new Vector3f(), 1, 1, 1, new Vector3f());
-        VulkanManager.getInstance().entityRenderer.processEntity(object);
+        VKModelLoader.VKMesh chaletModel = VKModelLoader.loadModel(chaletModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
+        VKModelLoader.VKMesh dragonModel = VKModelLoader.loadModel(dragonModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
+
+        VulkanRenderObject chalet = new VulkanRenderObject(chaletModel, new Vector3f(), 1, 1, 1, new Vector3f());
+        VulkanRenderObject dragon = new VulkanRenderObject(dragonModel, new Vector3f(), 1, 4, 1, new Vector3f());
+
+        VulkanManager.getInstance().entityRenderer.processEntity(chalet);
+//        VulkanManager.getInstance().entityRenderer.processEntity(dragon);
     }
 
     private void initWindow() {
