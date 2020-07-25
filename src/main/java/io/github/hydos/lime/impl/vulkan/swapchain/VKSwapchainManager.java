@@ -3,9 +3,8 @@ package io.github.hydos.lime.impl.vulkan.swapchain;
 import io.github.hydos.example.VulkanExample;
 import io.github.hydos.lime.core.io.Window;
 import io.github.hydos.lime.impl.vulkan.VKVariables;
-import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
 import io.github.hydos.lime.impl.vulkan.VulkanManager;
-import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
+import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
 import io.github.hydos.lime.impl.vulkan.render.VKRenderManager;
 import io.github.hydos.lime.impl.vulkan.render.pipelines.VKPipelineManager;
 import io.github.hydos.lime.impl.vulkan.render.renderers.EntityRenderer;
@@ -20,7 +19,6 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
 
-import static org.lwjgl.glfw.GLFW.glfwGetFramebufferSize;
 import static org.lwjgl.glfw.GLFW.glfwWaitEvents;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.KHRSurface.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
@@ -30,7 +28,6 @@ import static org.lwjgl.vulkan.VK10.*;
 public class VKSwapchainManager {
 
     public static void cleanupSwapChain() {
-
         vkDestroyImageView(VKVariables.device, VKVariables.colorImageView, null);
         vkDestroyImage(VKVariables.device, VKVariables.colorImage, null);
         vkFreeMemory(VKVariables.device, VKVariables.colorImageMemory, null);
@@ -38,11 +35,8 @@ public class VKSwapchainManager {
         vkDestroyImageView(VKVariables.device, VKVariables.depthImageView, null);
         vkDestroyImage(VKVariables.device, VKVariables.depthImage, null);
         vkFreeMemory(VKVariables.device, VKVariables.depthImageMemory, null);
-
-        for(VulkanRenderObject object : VulkanManager.getInstance().entityRenderer.entities){
-            VKVariables.uniformBuffers.forEach(ubo -> vkDestroyBuffer(VKVariables.device, ubo, null));
-            VKVariables.uniformBuffersMemory.forEach(uboMemory -> vkFreeMemory(VKVariables.device, uboMemory, null));
-        }
+        VKVariables.uniformBuffers.forEach(ubo -> vkDestroyBuffer(VKVariables.device, ubo, null));
+        VKVariables.uniformBuffersMemory.forEach(uboMemory -> vkFreeMemory(VKVariables.device, uboMemory, null));
 
         vkDestroyDescriptorPool(VKVariables.device, VKVariables.descriptorPool, null);
 
