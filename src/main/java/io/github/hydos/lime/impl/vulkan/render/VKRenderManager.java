@@ -139,7 +139,6 @@ public class VKRenderManager {
 
     public void render(MemoryStack stack, VkCommandBuffer commandBuffer, int index) {
         for (Renderer renderer : renderers) {
-            System.out.println(renderer.getClass().getSimpleName());
             renderer.VKRender(stack, commandBuffer, index);
         }
     }

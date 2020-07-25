@@ -20,6 +20,7 @@ import org.lwjgl.vulkan.VkSurfaceFormatKHR;
 
 import java.io.File;
 import java.nio.IntBuffer;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -51,8 +52,8 @@ public class VulkanExample {
 
     private void loadModels() {
 
-        File chaletModelFile = new File(ClassLoader.getSystemClassLoader().getResource("models/chalet.obj").getFile());
-        File dragonModelFile = new File(ClassLoader.getSystemClassLoader().getResource("models/dragon.obj").getFile());
+        File chaletModelFile = new File(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource("models/chalet.obj")).getFile());
+        File dragonModelFile = new File(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource("models/dragon.obj")).getFile());
 
         VKModelLoader.VKMesh chaletModel = VKModelLoader.loadModel(chaletModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
         VKModelLoader.VKMesh dragonModel = VKModelLoader.loadModel(dragonModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
@@ -125,28 +126,27 @@ public class VulkanExample {
 
     }
 
-    public static class UniformBufferObject {
+    public static class Ubo {
 
-        public static final int SIZEOF = 3 * 16 * Float.BYTES;
+        public static final int MATRIX4F_SIZE = 16 * Float.BYTES;
+        public static final int SIZEOF = (2 * MATRIX4F_SIZE) + MATRIX4F_SIZE * 10;
 
-        public Matrix4f model;
+        public Matrix4f[] model;
         public Matrix4f view;
         public Matrix4f proj;
 
-        public UniformBufferObject() {
-            model = new Matrix4f();
+        public Ubo() {
+            model = new Matrix4f[10]; //TMP: 10 object cap? FIXME
+
+            int i = 0;
+            for(Matrix4f m : model){
+                model[i] = new Matrix4f();
+                i++;
+            }
             view = new Matrix4f();
             proj = new Matrix4f();
         }
 
-        public UniformBufferObject(VulkanRenderObject renderObject) {
-            model = new Matrix4f();
-            view = new Matrix4f();
-            proj = new Matrix4f();
-            if(renderObject != null){
-                model.translate(renderObject.position);
-            }
-        }
     }
 
 }

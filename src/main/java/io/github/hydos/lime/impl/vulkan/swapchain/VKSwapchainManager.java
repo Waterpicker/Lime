@@ -147,7 +147,8 @@ public class VKSwapchainManager {
 
 
     /**
-     * i tried organising it but if i change the order everything breaks
+     * creates objects in the swap chain such as the render pass, pipeline, resources, framebuffers, ubos, etc
+     * @param entityRenderer
      */
     public static void createSwapChainObjects(EntityRenderer entityRenderer) {
         createSwapChain();
@@ -157,7 +158,7 @@ public class VKSwapchainManager {
         VKUtils.createColorResources();
         VKUtils.createDepthResources();
         VKUtils.createFramebuffers();
-        VKUtils.createUniformBuffers(entityRenderer.entities);
+        VKUtils.createUniformBuffers();
         VKUtils.createDescriptorPool();
         VKUtils.createDescriptorSets();
         CommandBufferManager.createCommandBuffers();
