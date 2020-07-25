@@ -12,6 +12,7 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkCommandBuffer;
 
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
@@ -68,14 +69,16 @@ public class EntityRenderer extends Renderer {
 
             vkCmdBindIndexBuffer(commandBuffer, mesh.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-            vkCmdPushConstants(commandBuffer, VKVariables.pipelineLayout, 0, 0, IntBuffer.allocate(entity.id));
+            int[] pushConstants = new int[2];
+            pushConstants[0] = entity.id;
+
             VK10.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                     VKVariables.pipelineLayout,
                     0, stack.longs(
                             VKVariables.descriptorSets.get(index)
                     ),
                     null);
-
+            vkCmdPushConstants(commandBuffer, VKVariables.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstants);
             vkCmdDrawIndexed(commandBuffer, mesh.vkMesh.indices.size(), 1, 0, 0, 0);
         }
 
