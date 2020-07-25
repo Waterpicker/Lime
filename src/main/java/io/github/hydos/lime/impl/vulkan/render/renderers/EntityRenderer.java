@@ -70,7 +70,7 @@ public class EntityRenderer extends Renderer {
             VK10.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                     VKVariables.pipelineLayout,
                     0, stack.longs(
-                            entity.descriptorSets.get(index)
+                            VKVariables.descriptorSets.get(index)
                     ),
                     null);
 

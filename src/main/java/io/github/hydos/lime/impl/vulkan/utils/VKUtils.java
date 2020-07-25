@@ -451,14 +451,7 @@ public class VKUtils {
         }
     }
 
-    public static void createDescriptorSets(List<VulkanRenderObject> objects) {
-        for (VulkanRenderObject object : objects) {
-            createDescriptorSet(object);
-        }
-    }
-
-    //FIXME: TODO: RAMIDZKH: DONOW:
-    public static void createDescriptorSet(VulkanRenderObject object) {
+    public static void createDescriptorSets() {
         try (MemoryStack stack = stackPush()) {
             LongBuffer layouts = stack.mallocLong(VKVariables.swapChainImages.size());
             for (int i = 0; i < layouts.capacity(); i++) {
@@ -476,7 +469,7 @@ public class VKUtils {
                 throw new RuntimeException("Failed to allocate descriptor sets");
             }
 
-            object.descriptorSets = new ArrayList<>(pDescriptorSets.capacity());
+            VKVariables.descriptorSets = new ArrayList<>(pDescriptorSets.capacity());
 
             VkDescriptorBufferInfo.Buffer bufferInfo = VkDescriptorBufferInfo.callocStack(1, stack);
             bufferInfo.offset(0);
@@ -508,14 +501,14 @@ public class VKUtils {
 
                 long descriptorSet = pDescriptorSets.get(i);
 
-                bufferInfo.buffer(object.uniformBuffers.get(i));
+                bufferInfo.buffer(VKVariables.uniformBuffers.get(i));
 
                 uboDescriptorWrite.dstSet(descriptorSet);
                 samplerDescriptorWrite.dstSet(descriptorSet);
 
                 vkUpdateDescriptorSets(VKVariables.device, descriptorWrites, null);
 
-                object.descriptorSets.add(descriptorSet);
+                VKVariables.descriptorSets.add(descriptorSet);
             }
         }
     }
@@ -721,10 +714,9 @@ public class VKUtils {
     }
 
     public static void createUniformBuffers(List<VulkanRenderObject> entities) {
-        for (VulkanRenderObject object : entities) {
             try (MemoryStack stack = stackPush()) {
-                object.uniformBuffers = new ArrayList<>(VKVariables.swapChainImages.size());
-                object.uniformBuffersMemory = new ArrayList<>(VKVariables.swapChainImages.size());
+                VKVariables.uniformBuffers = new ArrayList<>(VKVariables.swapChainImages.size());
+                VKVariables.uniformBuffersMemory = new ArrayList<>(VKVariables.swapChainImages.size());
 
                 LongBuffer pBuffer = stack.mallocLong(1);
                 LongBuffer pBufferMemory = stack.mallocLong(1);
@@ -732,11 +724,10 @@ public class VKUtils {
                 for (int i = 0; i < VKVariables.swapChainImages.size(); i++) {
                     VKBufferUtils.createBuffer(VulkanExample.UniformBufferObject.SIZEOF, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, pBuffer, pBufferMemory);
 
-                    object.uniformBuffers.add(pBuffer.get(0));
-                    object.uniformBuffersMemory.add(pBufferMemory.get(0));
+                    VKVariables.uniformBuffers.add(pBuffer.get(0));
+                    VKVariables.uniformBuffersMemory.add(pBufferMemory.get(0));
                 }
             }
-        }
     }
 
 
@@ -757,7 +748,7 @@ public class VKUtils {
             VkDescriptorPoolCreateInfo poolInfo = VkDescriptorPoolCreateInfo.callocStack(stack);
             poolInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO);
             poolInfo.pPoolSizes(poolSizes);
-            poolInfo.maxSets(VKVariables.swapChainImages.size());
+            poolInfo.maxSets(VKVariables.swapChainImages.size() + 10);//TODO: somehow unhardcode this
 
             LongBuffer pDescriptorPool = stack.mallocLong(1);
 
@@ -850,13 +841,10 @@ public class VKUtils {
         }
     }
 
-    public static void updateUniformBuffer(int currentImage, VulkanRenderObject renderObject) {
+    public static void updateUniformBuffer(int currentImage) {
         try (MemoryStack stack = stackPush()) {
 
-            VulkanExample.UniformBufferObject ubo = new VulkanExample.UniformBufferObject(renderObject);
-
-            //FIXME: tmp until ubo updating fixed
-            VulkanRenderObject vulkanRenderObject = VulkanManager.getInstance().entityRenderer.entities.get(0);
+            VulkanExample.UniformBufferObject ubo = new VulkanExample.UniformBufferObject();
 
             if (Window.isKeyDown(GLFW.GLFW_KEY_W))
                 ubo.model.rotate((float) (glfwGetTime() * Math.toRadians(90)), 0.0f, 0.0f, 1.0f);
@@ -866,11 +854,11 @@ public class VKUtils {
             ubo.proj.m11(ubo.proj.m11() * -1);
 
             PointerBuffer data = stack.mallocPointer(1);
-            vkMapMemory(VKVariables.device, vulkanRenderObject.uniformBuffersMemory.get(currentImage), 0, VulkanExample.UniformBufferObject.SIZEOF* VulkanManager.getInstance().entityRenderer.entities.size(), 0, data);
+            vkMapMemory(VKVariables.device, VKVariables.uniformBuffersMemory.get(currentImage), 0, VulkanExample.UniformBufferObject.SIZEOF* VulkanManager.getInstance().entityRenderer.entities.size(), 0, data);
             {
                 putUBOInMemory(data.getByteBuffer(0, VulkanExample.UniformBufferObject.SIZEOF* VulkanManager.getInstance().entityRenderer.entities.size()), ubo);
             }
-            vkUnmapMemory(VKVariables.device, vulkanRenderObject.uniformBuffersMemory.get(currentImage));
+            vkUnmapMemory(VKVariables.device, VKVariables.uniformBuffersMemory.get(currentImage));
         }
     }
 

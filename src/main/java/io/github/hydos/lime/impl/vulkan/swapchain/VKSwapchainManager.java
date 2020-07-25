@@ -40,8 +40,8 @@ public class VKSwapchainManager {
         vkFreeMemory(VKVariables.device, VKVariables.depthImageMemory, null);
 
         for(VulkanRenderObject object : VulkanManager.getInstance().entityRenderer.entities){
-            object.uniformBuffers.forEach(ubo -> vkDestroyBuffer(VKVariables.device, ubo, null));
-            object.uniformBuffersMemory.forEach(uboMemory -> vkFreeMemory(VKVariables.device, uboMemory, null));
+            VKVariables.uniformBuffers.forEach(ubo -> vkDestroyBuffer(VKVariables.device, ubo, null));
+            VKVariables.uniformBuffersMemory.forEach(uboMemory -> vkFreeMemory(VKVariables.device, uboMemory, null));
         }
 
         vkDestroyDescriptorPool(VKVariables.device, VKVariables.descriptorPool, null);
@@ -165,7 +165,7 @@ public class VKSwapchainManager {
         VKUtils.createFramebuffers();
         VKUtils.createUniformBuffers(entityRenderer.entities);
         VKUtils.createDescriptorPool();
-        VKUtils.createDescriptorSets(entityRenderer.entities);
+        VKUtils.createDescriptorSets();
         CommandBufferManager.createCommandBuffers();
     }
 

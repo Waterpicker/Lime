@@ -10,15 +10,10 @@ import java.util.List;
 
 public class VulkanRenderObject extends RenderObject {
 
-    public ArrayList<Long> descriptorSets;
     private VKBufferMesh model = null;
     private final VKModelLoader.VKMesh rawModel;
-    public List<Long> uniformBuffers;
-    public List<Long> uniformBuffersMemory;
 
     public VulkanRenderObject(VKModelLoader.VKMesh rawModel, Vector3f position, float rotX, float rotY, float rotZ, Vector3f scale) {
-        this.uniformBuffers = new ArrayList<>();
-        this.uniformBuffersMemory = new ArrayList<>();
         this.rawModel = rawModel;
         this.position = position;
         this.rotX = rotX;

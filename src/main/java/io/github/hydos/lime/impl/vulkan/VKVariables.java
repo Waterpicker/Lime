@@ -4,6 +4,7 @@ import io.github.hydos.lime.impl.vulkan.render.Frame;
 import io.github.hydos.lime.impl.vulkan.render.VKRenderManager;
 import org.lwjgl.vulkan.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -69,4 +70,7 @@ public class VKVariables {
     public static VKRenderManager renderManager;
     public static int currentImageIndex;
 
+    public static ArrayList<Long> uniformBuffers;
+    public static ArrayList<Long> uniformBuffersMemory;
+    public static ArrayList<Long> descriptorSets;
 }

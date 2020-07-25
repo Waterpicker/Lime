@@ -58,10 +58,10 @@ public class VulkanExample {
         VKModelLoader.VKMesh dragonModel = VKModelLoader.loadModel(dragonModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
 
         VulkanRenderObject chalet = new VulkanRenderObject(chaletModel, new Vector3f(), 1, 1, 1, new Vector3f());
-        VulkanRenderObject dragon = new VulkanRenderObject(dragonModel, new Vector3f(), 1, 4, 1, new Vector3f());
+        VulkanRenderObject dragon = new VulkanRenderObject(dragonModel, new Vector3f(), 1, 4, 7, new Vector3f());
 
         VulkanManager.getInstance().entityRenderer.processEntity(chalet);
-//        VulkanManager.getInstance().entityRenderer.processEntity(dragon);
+        VulkanManager.getInstance().entityRenderer.processEntity(dragon);
     }
 
     private void initWindow() {

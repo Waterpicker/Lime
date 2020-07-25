@@ -56,7 +56,7 @@ public class Frame {
             VKVariables.currentImageIndex = imageIndex;
             if (VKVariables.imagesInFlight.containsKey(imageIndex)) {
                 vkWaitForFences(VKVariables.device, VKVariables.imagesInFlight.get(imageIndex).fence(), true, UINT64_MAX);
-                VKUtils.updateUniformBuffer(VKVariables.currentImageIndex, null);
+                VKUtils.updateUniformBuffer(VKVariables.currentImageIndex);
             }
 
             VKVariables.imagesInFlight.put(imageIndex, thisFrame);

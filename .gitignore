@@ -5,3 +5,5 @@
 /httpRequests/
 *.lock
 /.gradle/*
+*.class
+/build/
