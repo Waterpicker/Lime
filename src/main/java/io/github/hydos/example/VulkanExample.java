@@ -107,7 +107,6 @@ public class VulkanExample {
 
     private void doStuff() {
         if (Window.shouldRender()) {
-            dragon.increasePosition(0, 0f, -0.004f);
             chalet.increaseRotation(0, 0, 5);
             Frame.drawFrame();
         }

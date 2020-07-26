@@ -20,6 +20,7 @@ import static org.lwjgl.vulkan.VK10.*;
 public class Variables {
 
     public static final int UINT32_MAX = 0xFFFFFFFF;
+    public static final int MAX_DESCRIPTOR_COUNT = 2048;
 
     public static VkInstance instance;
     public static long surface;

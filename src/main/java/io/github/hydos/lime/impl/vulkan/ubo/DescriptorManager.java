@@ -20,10 +20,9 @@ public class DescriptorManager {
     public static long descriptorPool;
     public static long descriptorSetLayout;
 
-    public static Map<CompiledTexture, List<Long>> descriptorSetsMap;
+    public static Map<CompiledTexture, List<Long>> descriptorSetsMap = new HashMap<>();;
 
     public static void createDescriptorSets(List<CompiledTexture> textures) {
-        descriptorSetsMap = new HashMap<>();
         try (MemoryStack stack = stackPush()) {
             for(CompiledTexture compiledTexture : textures){
                 LongBuffer layouts = stack.mallocLong(Variables.swapChainImages.size());
@@ -126,7 +125,6 @@ public class DescriptorManager {
 
     public static void createDescriptorPool() {
         try (MemoryStack stack = stackPush()) {
-
             VkDescriptorPoolSize.Buffer poolSizes = VkDescriptorPoolSize.callocStack(2, stack);
 
             VkDescriptorPoolSize uniformBufferPoolSize = poolSizes.get(0);
@@ -140,14 +138,12 @@ public class DescriptorManager {
             VkDescriptorPoolCreateInfo poolInfo = VkDescriptorPoolCreateInfo.callocStack(stack);
             poolInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO);
             poolInfo.pPoolSizes(poolSizes);
-            poolInfo.maxSets(Variables.swapChainImages.size() + 20);//TODO: somehow unhardcode this this number is responsable for running out of pool memory
-
+            poolInfo.maxSets(Variables.swapChainImages.size() * Variables.MAX_DESCRIPTOR_COUNT);
             LongBuffer pDescriptorPool = stack.mallocLong(1);
 
             if (vkCreateDescriptorPool(Variables.device, poolInfo, null, pDescriptorPool) != VK_SUCCESS) {
                 throw new RuntimeException("Failed to create descriptor pool");
             }
-
             descriptorPool = pDescriptorPool.get(0);
         }
     }
