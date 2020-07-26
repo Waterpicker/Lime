@@ -1,4 +1,4 @@
-package io.github.hydos.lime.core.math;
+package io.github.hydos.citrus.math;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;

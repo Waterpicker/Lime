@@ -1,4 +1,4 @@
-package io.github.hydos.lime.core.io;
+package io.github.hydos.citrus.io;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -171,21 +171,6 @@ public class Window {
 
     public static void unlockMouse() {
         GLFW.glfwSetInputMode(getWindow(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
-    }
-
-    public static void update() {
-        IntBuffer widthBuffer = BufferUtils.createIntBuffer(1);
-        IntBuffer heightBuffer = BufferUtils.createIntBuffer(1);
-        GLFW.glfwGetWindowSize(getWindow(), widthBuffer, heightBuffer);
-        width = widthBuffer.get(0);
-        height = heightBuffer.get(0);
-        GLFW.glfwPollEvents();
-        newX = Window.getMouseX();
-        newY = Window.getMouseY();
-        Window.dx = newX - oldX;
-        Window.dy = newY - oldY;
-        oldX = newX;
-        oldY = newY;
     }
 
     public static void fullscreen() {

@@ -1,13 +1,12 @@
-package io.github.hydos.lime.core;
+package io.github.hydos.citrus;
 
-import io.github.hydos.lime.core.io.Window;
+import io.github.hydos.citrus.io.Window;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 /**
  * this class is only for moving around the scene and testing
  */
-@Deprecated
 public class PlayerController {
 
     public static Vector3f position = new Vector3f(2, 0 , 0);

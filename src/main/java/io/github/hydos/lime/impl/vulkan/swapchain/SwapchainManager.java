@@ -1,8 +1,7 @@
 package io.github.hydos.lime.impl.vulkan.swapchain;
 
-import io.github.hydos.example.VulkanExample;
-import io.github.hydos.lime.core.io.Window;
-import io.github.hydos.lime.core.math.LimeMath;
+import io.github.hydos.citrus.io.Window;
+import io.github.hydos.citrus.math.LimeMath;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
 import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
@@ -30,6 +29,12 @@ import static org.lwjgl.vulkan.KHRSwapchain.*;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class SwapchainManager {
+    
+    public static class SwapChainSupportDetails {
+        public VkSurfaceCapabilitiesKHR capabilities;
+        public VkSurfaceFormatKHR.Buffer formats;
+        public IntBuffer presentModes;
+    }
 
     public static void cleanupSwapChain() {
         vkDestroyImageView(Variables.device, Variables.colorImageView, null);
@@ -92,9 +97,9 @@ public class SwapchainManager {
         return actualExtent;
     }
 
-    public static VulkanExample.SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, MemoryStack stack) {
+    public static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, MemoryStack stack) {
 
-        VulkanExample.SwapChainSupportDetails details = new VulkanExample.SwapChainSupportDetails();
+        SwapChainSupportDetails details = new SwapChainSupportDetails();
 
         details.capabilities = VkSurfaceCapabilitiesKHR.mallocStack(stack);
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, Variables.surface, details.capabilities);
@@ -142,7 +147,7 @@ public class SwapchainManager {
 
         try (MemoryStack stack = stackPush()) {
 
-            VulkanExample.SwapChainSupportDetails swapChainSupport = querySwapChainSupport(Variables.physicalDevice, stack);
+            SwapChainSupportDetails swapChainSupport = querySwapChainSupport(Variables.physicalDevice, stack);
 
             VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
             int presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -167,7 +172,7 @@ public class SwapchainManager {
             createInfo.imageArrayLayers(1);
             createInfo.imageUsage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
-            VulkanExample.QueueFamilyIndices indices = DeviceManager.findQueueFamilies(Variables.physicalDevice);
+            DeviceManager.QueueFamilyIndices indices = DeviceManager.findQueueFamilies(Variables.physicalDevice);
 
             if (!indices.graphicsFamily.equals(indices.presentFamily)) {
                 createInfo.imageSharingMode(VK_SHARING_MODE_CONCURRENT);
@@ -217,8 +222,8 @@ public class SwapchainManager {
         ImageUtils.createImageViews();
         VKRenderManager.createRenderPass();
         VKPipelineManager.createGraphicsPipeline();
-        Utils.createColorResources();
-        Utils.createDepthResources();
+        ImageUtils.createColorResources();
+        ImageUtils.createDepthResources();
         Utils.createFramebuffers();
         UboManager.createUniformBuffers();
         DescriptorManager.createDescriptorPool();

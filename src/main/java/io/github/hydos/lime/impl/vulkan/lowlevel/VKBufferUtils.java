@@ -36,7 +36,7 @@ public class VKBufferUtils {
             VkMemoryAllocateInfo allocInfo = VkMemoryAllocateInfo.callocStack(stack);
             allocInfo.sType(VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO);
             allocInfo.allocationSize(memRequirements.size());
-            allocInfo.memoryTypeIndex(Utils.findMemoryType(memRequirements.memoryTypeBits(), properties));
+            allocInfo.memoryTypeIndex(VKMemoryUtils.findMemoryType(memRequirements.memoryTypeBits(), properties));
 
             if (vkAllocateMemory(Variables.device, allocInfo, null, pBufferMemory) != VK_SUCCESS) {
                 throw new RuntimeException("Failed to allocate buffer memory");

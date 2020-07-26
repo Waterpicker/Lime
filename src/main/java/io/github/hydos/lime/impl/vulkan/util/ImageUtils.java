@@ -1,17 +1,122 @@
 package io.github.hydos.lime.impl.vulkan.util;
 
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.lowlevel.VKMemoryUtils;
 import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
+import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
 
+import static org.lwjgl.system.MemoryStack.stackGet;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class ImageUtils {
+
+
+    public static void transitionImageLayout(long image, int format, int oldLayout, int newLayout, int mipLevels) {
+        try (MemoryStack stack = stackPush()) {
+            VkImageMemoryBarrier.Buffer barrier = VkImageMemoryBarrier.callocStack(1, stack);
+            barrier.sType(VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER);
+            barrier.oldLayout(oldLayout);
+            barrier.newLayout(newLayout);
+            barrier.srcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED);
+            barrier.dstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED);
+            barrier.image(image);
+
+            barrier.subresourceRange().baseMipLevel(0);
+            barrier.subresourceRange().levelCount(mipLevels);
+            barrier.subresourceRange().baseArrayLayer(0);
+            barrier.subresourceRange().layerCount(1);
+
+            if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+
+                barrier.subresourceRange().aspectMask(VK_IMAGE_ASPECT_DEPTH_BIT);
+
+                if (Variables.hasStencilComponent(format)) {
+                    barrier.subresourceRange().aspectMask(
+                            barrier.subresourceRange().aspectMask() | VK_IMAGE_ASPECT_STENCIL_BIT);
+                }
+
+            } else {
+                barrier.subresourceRange().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT);
+            }
+
+            int sourceStage;
+            int destinationStage;
+
+            if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+
+                barrier.srcAccessMask(0);
+                barrier.dstAccessMask(VK_ACCESS_TRANSFER_WRITE_BIT);
+
+                sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+            } else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+
+                barrier.srcAccessMask(VK_ACCESS_TRANSFER_WRITE_BIT);
+                barrier.dstAccessMask(VK_ACCESS_SHADER_READ_BIT);
+
+                sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
+            } else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+
+                barrier.srcAccessMask(0);
+                barrier.dstAccessMask(VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
+
+                sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+
+            } else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+
+                barrier.srcAccessMask(0);
+                barrier.dstAccessMask(VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+
+                sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                destinationStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+            } else {
+                throw new IllegalArgumentException("Unsupported layout transition");
+            }
+
+            VkCommandBuffer commandBuffer = CommandBufferManager.beginSingleTimeCommands();
+
+            vkCmdPipelineBarrier(commandBuffer,
+                    sourceStage, destinationStage,
+                    0,
+                    null,
+                    null,
+                    barrier);
+
+            CommandBufferManager.endSingleTimeCommands(commandBuffer);
+        }
+    }
+
+    public static void copyBufferToImage(long buffer, long image, int width, int height) {
+        try (MemoryStack stack = stackPush()) {
+            VkCommandBuffer commandBuffer = CommandBufferManager.beginSingleTimeCommands();
+
+            VkBufferImageCopy.Buffer region = VkBufferImageCopy.callocStack(1, stack);
+            region.bufferOffset(0);
+            region.bufferRowLength(0);   // Tightly packed
+            region.bufferImageHeight(0);  // Tightly packed
+            region.imageSubresource().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT);
+            region.imageSubresource().mipLevel(0);
+            region.imageSubresource().baseArrayLayer(0);
+            region.imageSubresource().layerCount(1);
+            region.imageOffset().set(0, 0, 0);
+            region.imageExtent(VkExtent3D.callocStack(stack).set(width, height, 1));
+
+            vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
+
+            CommandBufferManager.endSingleTimeCommands(commandBuffer);
+        }
+    }
 
     public static void createImageViews() {
         Variables.swapChainImageViews = new ArrayList<>(Variables.swapChainImages.size());
@@ -163,7 +268,7 @@ public class ImageUtils {
             VkMemoryAllocateInfo allocInfo = VkMemoryAllocateInfo.callocStack(stack);
             allocInfo.sType(VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO);
             allocInfo.allocationSize(memRequirements.size());
-            allocInfo.memoryTypeIndex(Utils.findMemoryType(memRequirements.memoryTypeBits(), memProperties));
+            allocInfo.memoryTypeIndex(VKMemoryUtils.findMemoryType(memRequirements.memoryTypeBits(), memProperties));
 
             if (vkAllocateMemory(Variables.device, allocInfo, null, pTextureImageMemory) != VK_SUCCESS) {
                 throw new RuntimeException("Failed to allocate image memory");
@@ -172,4 +277,94 @@ public class ImageUtils {
         }
     }
 
+
+    public static void createColorResources() {
+
+        try (MemoryStack stack = stackPush()) {
+
+            LongBuffer pColorImage = stack.mallocLong(1);
+            LongBuffer pColorImageMemory = stack.mallocLong(1);
+
+            ImageUtils.createImage(Variables.swapChainExtent.width(), Variables.swapChainExtent.height(),
+                    1,
+                    Variables.msaaSamples,
+                    Variables.swapChainImageFormat,
+                    VK_IMAGE_TILING_OPTIMAL,
+                    VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                    pColorImage,
+                    pColorImageMemory);
+
+            Variables.colorImage = pColorImage.get(0);
+            Variables.colorImageMemory = pColorImageMemory.get(0);
+
+            Variables.colorImageView = ImageUtils.createImageView(Variables.colorImage, Variables.swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+
+            transitionImageLayout(Variables.colorImage, Variables.swapChainImageFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 1);
+        }
+    }
+
+    public static void createDepthResources() {
+
+        try (MemoryStack stack = stackPush()) {
+
+            int depthFormat = findDepthFormat();
+
+            LongBuffer pDepthImage = stack.mallocLong(1);
+            LongBuffer pDepthImageMemory = stack.mallocLong(1);
+
+            ImageUtils.createImage(
+                    Variables.swapChainExtent.width(), Variables.swapChainExtent.height(),
+                    1,
+                    Variables.msaaSamples,
+                    depthFormat,
+                    VK_IMAGE_TILING_OPTIMAL,
+                    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                    pDepthImage,
+                    pDepthImageMemory);
+
+            Variables.depthImage = pDepthImage.get(0);
+            Variables.depthImageMemory = pDepthImageMemory.get(0);
+
+            Variables.depthImageView = ImageUtils.createImageView(Variables.depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+
+            // Explicitly transitioning the depth image
+            transitionImageLayout(Variables.depthImage, depthFormat,
+                    VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                    1);
+
+        }
+    }
+
+    public static int findSupportedFormat(IntBuffer formatCandidates, int tiling, int features) {
+
+        try (MemoryStack stack = stackPush()) {
+
+            VkFormatProperties props = VkFormatProperties.callocStack(stack);
+
+            for (int i = 0; i < formatCandidates.capacity(); ++i) {
+
+                int format = formatCandidates.get(i);
+
+                vkGetPhysicalDeviceFormatProperties(Variables.physicalDevice, format, props);
+
+                if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures() & features) == features) {
+                    return format;
+                } else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures() & features) == features) {
+                    return format;
+                }
+
+            }
+        }
+
+        throw new RuntimeException("Failed to find supported format");
+    }
+
+    public static int findDepthFormat() {
+        return findSupportedFormat(
+                stackGet().ints(VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT),
+                VK_IMAGE_TILING_OPTIMAL,
+                VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+    }
 }

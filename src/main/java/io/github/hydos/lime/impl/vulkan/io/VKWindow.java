@@ -1,6 +1,6 @@
 package io.github.hydos.lime.impl.vulkan.io;
 
-import io.github.hydos.lime.core.io.Window;
+import io.github.hydos.citrus.io.Window;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;

@@ -1,6 +1,6 @@
 package io.github.hydos.lime.impl.vulkan.elements;
 
-import io.github.hydos.lime.core.render.RenderObject;
+import io.github.hydos.citrus.render.RenderObject;
 import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
 import io.github.hydos.lime.impl.vulkan.render.VKBufferMesh;
 import org.joml.Vector3f;

@@ -1,6 +1,6 @@
 package io.github.hydos.lime.impl.vulkan.render;
 
-import io.github.hydos.lime.core.math.LimeMath;
+import io.github.hydos.citrus.math.LimeMath;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.elements.TexturedVulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
@@ -8,7 +8,6 @@ import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKMemoryUtils;
 import io.github.hydos.lime.impl.vulkan.texture.CompiledTexture;
 import io.github.hydos.lime.impl.vulkan.util.ImageUtils;
-import io.github.hydos.lime.impl.vulkan.util.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkSamplerCreateInfo;
@@ -85,13 +84,13 @@ public class VKTextureManager {
             compiledTexture.textureImage = pTextureImage.get(0);
             compiledTexture.textureImageMemory = pTextureImageMemory.get(0);
 
-            Utils.transitionImageLayout(compiledTexture.textureImage,
+            ImageUtils.transitionImageLayout(compiledTexture.textureImage,
                     VK_FORMAT_R8G8B8A8_SRGB,
                     VK_IMAGE_LAYOUT_UNDEFINED,
                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                     compiledTexture.mipLevels);
 
-            Utils.copyBufferToImage(pStagingBuffer.get(0), compiledTexture.textureImage, pWidth.get(0), pHeight.get(0));
+            ImageUtils.copyBufferToImage(pStagingBuffer.get(0), compiledTexture.textureImage, pWidth.get(0), pHeight.get(0));
 
             // Transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
             ImageUtils.generateMipmaps(compiledTexture.textureImage, VK_FORMAT_R8G8B8A8_SRGB, pWidth.get(0), pHeight.get(0), compiledTexture.mipLevels);

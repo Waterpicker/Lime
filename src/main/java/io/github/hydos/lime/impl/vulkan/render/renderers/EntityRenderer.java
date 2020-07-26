@@ -1,9 +1,8 @@
 package io.github.hydos.lime.impl.vulkan.render.renderers;
 
-import io.github.hydos.lime.core.render.Renderer;
+import io.github.hydos.citrus.render.Renderer;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.elements.TexturedVulkanRenderObject;
-import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
 import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;

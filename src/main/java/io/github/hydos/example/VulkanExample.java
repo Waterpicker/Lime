@@ -1,7 +1,7 @@
 package io.github.hydos.example;
 
-import io.github.hydos.lime.core.PlayerController;
-import io.github.hydos.lime.core.io.Window;
+import io.github.hydos.citrus.PlayerController;
+import io.github.hydos.citrus.io.Window;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import io.github.hydos.lime.impl.vulkan.VulkanReg;
@@ -9,6 +9,7 @@ import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
 import io.github.hydos.lime.impl.vulkan.elements.TexturedVulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.io.VKWindow;
+import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
 import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
 import io.github.hydos.lime.impl.vulkan.render.Frame;
 import io.github.hydos.lime.impl.vulkan.render.VKTextureManager;
@@ -16,17 +17,13 @@ import io.github.hydos.lime.impl.vulkan.swapchain.SwapchainManager;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
 import io.github.hydos.lime.impl.vulkan.util.Utils;
 import org.joml.Vector3f;
-import org.lwjgl.vulkan.KHRSwapchain;
 import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
 import org.lwjgl.vulkan.VkSurfaceFormatKHR;
 
 import java.io.File;
 import java.nio.IntBuffer;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static org.lwjgl.assimp.Assimp.aiProcess_DropNormals;
 import static org.lwjgl.assimp.Assimp.aiProcess_FlipUVs;
@@ -36,18 +33,14 @@ import static org.lwjgl.vulkan.VK10.vkDeviceWaitIdle;
 
 public class VulkanExample {
 
-    public static final Set<String> DEVICE_EXTENSIONS = Stream.of(KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME).collect(Collectors.toSet());
-
     TexturedVulkanRenderObject chalet;
     TexturedVulkanRenderObject dragon;
 
     public static void main(String[] args) {
-        VulkanExample app = new VulkanExample();
-
-        app.run();
+        new VulkanExample();
     }
 
-    public void run() {
+    public VulkanExample() {
         initWindow();
         initVulkan();
         runEngine();
@@ -86,7 +79,7 @@ public class VulkanExample {
         VulkanManager.getInstance().createRenderers();
         DeviceManager.pickPhysicalDevice();
         DeviceManager.createLogicalDevice();
-        Utils.createCommandPool();
+        CommandBufferManager.createCommandPool();
         DescriptorManager.createUBODescriptorSetLayout();
         loadModels();
         SwapchainManager.createSwapChainObjects();
@@ -99,6 +92,7 @@ public class VulkanExample {
             loop();
             PlayerController.onInput();
         }
+        Window.stop();
         vkDeviceWaitIdle(Variables.device);
     }
 
@@ -108,24 +102,5 @@ public class VulkanExample {
             Frame.drawFrame();
         }
         glfwPollEvents();
-    }
-
-    public static class QueueFamilyIndices {
-        public Integer graphicsFamily;
-        public Integer presentFamily;
-
-        public boolean isComplete() {
-            return graphicsFamily != null && presentFamily != null;
-        }
-
-        public int[] unique() {
-            return IntStream.of(graphicsFamily, presentFamily).distinct().toArray();
-        }
-    }
-
-    public static class SwapChainSupportDetails {
-        public VkSurfaceCapabilitiesKHR capabilities;
-        public VkSurfaceFormatKHR.Buffer formats;
-        public IntBuffer presentModes;
     }
 }

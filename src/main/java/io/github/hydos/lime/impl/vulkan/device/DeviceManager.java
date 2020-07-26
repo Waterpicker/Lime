@@ -1,3 +1,4 @@
+
 package io.github.hydos.lime.impl.vulkan.device;
 
 import io.github.hydos.example.VulkanExample;
@@ -9,6 +10,10 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.nio.IntBuffer;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
 import static org.lwjgl.system.MemoryStack.stackPush;
@@ -17,9 +22,23 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class DeviceManager {
 
+    public static final Set<String> DEVICE_EXTENSIONS = Stream.of(KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME).collect(Collectors.toSet());
 
-    public static VulkanExample.QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
-        VulkanExample.QueueFamilyIndices indices = new VulkanExample.QueueFamilyIndices();
+    public static class QueueFamilyIndices {
+        public Integer graphicsFamily;
+        public Integer presentFamily;
+
+        public boolean isComplete() {
+            return graphicsFamily != null && presentFamily != null;
+        }
+
+        public int[] unique() {
+            return IntStream.of(graphicsFamily, presentFamily).distinct().toArray();
+        }
+    }
+    
+    public static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
+        QueueFamilyIndices indices = new QueueFamilyIndices();
 
         try (MemoryStack stack = stackPush()) {
 
@@ -46,7 +65,7 @@ public class DeviceManager {
 
         try (MemoryStack stack = stackPush()) {
 
-            VulkanExample.QueueFamilyIndices indices = findQueueFamilies(Variables.physicalDevice);
+            QueueFamilyIndices indices = findQueueFamilies(Variables.physicalDevice);
 
             int[] uniqueQueueFamilies = indices.unique();
 
@@ -71,7 +90,7 @@ public class DeviceManager {
 
             createInfo.pEnabledFeatures(deviceFeatures);
 
-            createInfo.ppEnabledExtensionNames(Utils.asPointerBuffer(VulkanExample.DEVICE_EXTENSIONS));
+            createInfo.ppEnabledExtensionNames(Utils.asPointerBuffer(DEVICE_EXTENSIONS));
 
             PointerBuffer pDevice = stack.pointers(VK_NULL_HANDLE);
 
@@ -127,13 +146,13 @@ public class DeviceManager {
 
             VkExtensionProperties.Buffer availableExtensions = VkExtensionProperties.mallocStack(extensionCount.get(0), stack);
 
-            return availableExtensions.stream().collect(toSet()).containsAll(VulkanExample.DEVICE_EXTENSIONS);
+            return availableExtensions.stream().collect(toSet()).containsAll(DEVICE_EXTENSIONS);
         }
     }
 
     private static boolean isDeviceSuitable(VkPhysicalDevice device) {
 
-        VulkanExample.QueueFamilyIndices indices = findQueueFamilies(device);
+        QueueFamilyIndices indices = findQueueFamilies(device);
 
         boolean extensionsSupported = checkDeviceExtensionSupport(device);
         boolean swapChainAdequate = false;
@@ -141,7 +160,7 @@ public class DeviceManager {
 
         if (extensionsSupported) {
             try (MemoryStack stack = stackPush()) {
-                VulkanExample.SwapChainSupportDetails swapChainSupport = SwapchainManager.querySwapChainSupport(device, stack);
+                SwapchainManager.SwapChainSupportDetails swapChainSupport = SwapchainManager.querySwapChainSupport(device, stack);
                 swapChainAdequate = swapChainSupport.formats.hasRemaining() && swapChainSupport.presentModes.hasRemaining();
                 VkPhysicalDeviceFeatures supportedFeatures = VkPhysicalDeviceFeatures.mallocStack(stack);
                 vkGetPhysicalDeviceFeatures(device, supportedFeatures);

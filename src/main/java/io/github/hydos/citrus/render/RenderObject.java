@@ -1,4 +1,4 @@
-package io.github.hydos.lime.core.render;
+package io.github.hydos.citrus.render;
 
 import org.joml.Vector3f;
 

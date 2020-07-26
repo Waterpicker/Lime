@@ -1,14 +1,13 @@
 package io.github.hydos.lime.impl.vulkan.ubo;
 
-import io.github.hydos.lime.core.PlayerController;
-import io.github.hydos.lime.core.math.LimeMath;
+import io.github.hydos.citrus.PlayerController;
+import io.github.hydos.citrus.math.LimeMath;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.lowlevel.AlignmentUtils;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 

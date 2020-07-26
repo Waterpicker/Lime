@@ -1,17 +1,38 @@
 package io.github.hydos.lime.impl.vulkan.model;
 
-import io.github.hydos.lime.core.io.Window;
+import io.github.hydos.citrus.io.Window;
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
+import java.nio.LongBuffer;
 import java.util.ArrayList;
 
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class CommandBufferManager {
+
+    public static void createCommandPool() {
+        try (MemoryStack stack = stackPush()) {
+
+            DeviceManager.QueueFamilyIndices queueFamilyIndices = DeviceManager.findQueueFamilies(Variables.physicalDevice);
+
+            VkCommandPoolCreateInfo poolInfo = VkCommandPoolCreateInfo.callocStack(stack);
+            poolInfo.sType(VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO);
+            poolInfo.queueFamilyIndex(queueFamilyIndices.graphicsFamily);
+
+            LongBuffer pCommandPool = stack.mallocLong(1);
+
+            if (vkCreateCommandPool(Variables.device, poolInfo, null, pCommandPool) != VK_SUCCESS) {
+                throw new RuntimeException("Failed to create command pool");
+            }
+
+            Variables.commandPool = pCommandPool.get(0);
+        }
+    }
 
     public static void createCommandBuffers() {
 

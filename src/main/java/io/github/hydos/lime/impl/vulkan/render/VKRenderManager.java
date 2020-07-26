@@ -1,8 +1,8 @@
 package io.github.hydos.lime.impl.vulkan.render;
 
-import io.github.hydos.lime.core.render.Renderer;
+import io.github.hydos.citrus.render.Renderer;
 import io.github.hydos.lime.impl.vulkan.Variables;
-import io.github.hydos.lime.impl.vulkan.util.Utils;
+import io.github.hydos.lime.impl.vulkan.util.ImageUtils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -78,7 +78,7 @@ public class VKRenderManager {
             // Depth-Stencil attachments
 
             VkAttachmentDescription depthAttachment = attachments.get(1);
-            depthAttachment.format(Utils.findDepthFormat());
+            depthAttachment.format(ImageUtils.findDepthFormat());
             depthAttachment.samples(Variables.msaaSamples);
             depthAttachment.loadOp(VK_ATTACHMENT_LOAD_OP_CLEAR);
             depthAttachment.storeOp(VK_ATTACHMENT_STORE_OP_DONT_CARE);
