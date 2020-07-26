@@ -2,11 +2,13 @@ package io.github.hydos.lime.impl.vulkan.render.renderers;
 
 import io.github.hydos.lime.core.render.Renderer;
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.elements.TexturedVulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
 import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 import io.github.hydos.lime.impl.vulkan.render.VKBufferMesh;
+import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
@@ -19,13 +21,13 @@ import java.util.List;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class EntityRenderer extends Renderer {
-    public List<VulkanRenderObject> entities;//TODO: batch rendering
+    public List<TexturedVulkanRenderObject> entities;//TODO: batch rendering
 
     public EntityRenderer() {
         entities = new ArrayList<>();
     }
 
-    public void processEntity(VulkanRenderObject entity) {
+    public void processEntity(TexturedVulkanRenderObject entity) {
         VKModelLoader.VKMesh mesh = entity.getRawModel();
         VKBufferMesh processedMesh = new VKBufferMesh();
         processedMesh.vkMesh = mesh;
@@ -56,7 +58,7 @@ public class EntityRenderer extends Renderer {
 
     @Override
     public void VKRender(MemoryStack stack, VkCommandBuffer commandBuffer, int index) {
-        for (VulkanRenderObject entity : entities) {
+        for (TexturedVulkanRenderObject entity : entities) {
             VKBufferMesh mesh = entity.getModel();
 
             LongBuffer vertexBuffers = stack.longs(mesh.vertexBuffer);
@@ -71,7 +73,7 @@ public class EntityRenderer extends Renderer {
             VK10.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                     Variables.pipelineLayout,
                     0, stack.longs(
-                            Variables.descriptorSets.get(index)
+                            DescriptorManager.descriptorSetsMap.get(entity.texture).get(index)
                     ),
                     null);
             vkCmdPushConstants(commandBuffer, Variables.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstants);

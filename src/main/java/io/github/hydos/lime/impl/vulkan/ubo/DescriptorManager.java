@@ -2,11 +2,15 @@ package io.github.hydos.lime.impl.vulkan.ubo;
 
 import io.github.hydos.example.VulkanExample;
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.texture.CompiledTexture;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.nio.LongBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
@@ -16,65 +20,71 @@ public class DescriptorManager {
     public static long descriptorPool;
     public static long descriptorSetLayout;
 
+    public static Map<CompiledTexture, List<Long>> descriptorSetsMap;
 
-    public static void createDescriptorSets() {
+    public static void createDescriptorSets(List<CompiledTexture> textures) {
+        descriptorSetsMap = new HashMap<>();
         try (MemoryStack stack = stackPush()) {
-            LongBuffer layouts = stack.mallocLong(Variables.swapChainImages.size());
-            for (int i = 0; i < layouts.capacity(); i++) {
-                layouts.put(i, descriptorSetLayout);
-            }
+            for(CompiledTexture compiledTexture : textures){
+                LongBuffer layouts = stack.mallocLong(Variables.swapChainImages.size());
+                for (int i = 0; i < layouts.capacity(); i++) {
+                    layouts.put(i, descriptorSetLayout);
+                }
 
-            VkDescriptorSetAllocateInfo allocInfo = VkDescriptorSetAllocateInfo.callocStack(stack);
-            allocInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO);
-            allocInfo.descriptorPool(descriptorPool);
-            allocInfo.pSetLayouts(layouts);
+                VkDescriptorSetAllocateInfo allocInfo = VkDescriptorSetAllocateInfo.callocStack(stack);
+                allocInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO);
+                allocInfo.descriptorPool(descriptorPool);
+                allocInfo.pSetLayouts(layouts);
 
-            LongBuffer pDescriptorSets = stack.mallocLong(Variables.swapChainImages.size());
+                LongBuffer pDescriptorSets = stack.mallocLong(Variables.swapChainImages.size());
 
-            if (vkAllocateDescriptorSets(Variables.device, allocInfo, pDescriptorSets) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to allocate descriptor sets");
-            }
+                if (vkAllocateDescriptorSets(Variables.device, allocInfo, pDescriptorSets) != VK_SUCCESS) {
+                    throw new RuntimeException("Failed to allocate descriptor sets");
+                }
 
-            Variables.descriptorSets = new ArrayList<>(pDescriptorSets.capacity());
+                List<Long> descriptorSets = new ArrayList<>(pDescriptorSets.capacity());
 
-            VkDescriptorBufferInfo.Buffer bufferInfo = VkDescriptorBufferInfo.callocStack(1, stack);
-            bufferInfo.offset(0);
-            bufferInfo.range(VulkanExample.Ubo.SIZEOF);
+                VkDescriptorBufferInfo.Buffer bufferInfo = VkDescriptorBufferInfo.callocStack(1, stack);
+                bufferInfo.offset(0);
+                bufferInfo.range(VulkanExample.Ubo.SIZEOF);
 
-            VkDescriptorImageInfo.Buffer imageInfo = VkDescriptorImageInfo.callocStack(1, stack);
-            imageInfo.imageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-            imageInfo.imageView(Variables.textureImageView);
-            imageInfo.sampler(Variables.textureSampler);
+                VkDescriptorImageInfo.Buffer imageInfo = VkDescriptorImageInfo.callocStack(1, stack);
+                imageInfo.imageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                imageInfo.imageView(compiledTexture.textureImageView);
+                imageInfo.sampler(compiledTexture.textureSampler);
 
-            VkWriteDescriptorSet.Buffer descriptorWrites = VkWriteDescriptorSet.callocStack(2, stack);
-            VkWriteDescriptorSet uboDescriptorWrite = descriptorWrites.get(0);
-            uboDescriptorWrite.sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET);
-            uboDescriptorWrite.dstBinding(0);
-            uboDescriptorWrite.dstArrayElement(0);
-            uboDescriptorWrite.descriptorType(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-            uboDescriptorWrite.descriptorCount(1);
-            uboDescriptorWrite.pBufferInfo(bufferInfo);
+                VkWriteDescriptorSet.Buffer descriptorWrites = VkWriteDescriptorSet.callocStack(2, stack);
+                VkWriteDescriptorSet uboDescriptorWrite = descriptorWrites.get(0);
+                uboDescriptorWrite.sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET);
+                uboDescriptorWrite.dstBinding(0);
+                uboDescriptorWrite.dstArrayElement(0);
+                uboDescriptorWrite.descriptorType(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+                uboDescriptorWrite.descriptorCount(1);
+                uboDescriptorWrite.pBufferInfo(bufferInfo);
 
-            VkWriteDescriptorSet samplerDescriptorWrite = descriptorWrites.get(1);
-            samplerDescriptorWrite.sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET);
-            samplerDescriptorWrite.dstBinding(1);
-            samplerDescriptorWrite.dstArrayElement(0);
-            samplerDescriptorWrite.descriptorType(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-            samplerDescriptorWrite.descriptorCount(1);
-            samplerDescriptorWrite.pImageInfo(imageInfo);
+                VkWriteDescriptorSet samplerDescriptorWrite = descriptorWrites.get(1);
+                samplerDescriptorWrite.sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET);
+                samplerDescriptorWrite.dstBinding(1);
+                samplerDescriptorWrite.dstArrayElement(0);
+                samplerDescriptorWrite.descriptorType(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+                samplerDescriptorWrite.descriptorCount(1);
+                samplerDescriptorWrite.pImageInfo(imageInfo);
 
-            for (int i = 0; i < pDescriptorSets.capacity(); i++) {
+                for (int i = 0; i < pDescriptorSets.capacity(); i++) {
 
-                long descriptorSet = pDescriptorSets.get(i);
+                    long descriptorSet = pDescriptorSets.get(i);
 
-                bufferInfo.buffer(Variables.uniformBuffers.get(i));
+                    bufferInfo.buffer(Variables.uniformBuffers.get(i));
 
-                uboDescriptorWrite.dstSet(descriptorSet);
-                samplerDescriptorWrite.dstSet(descriptorSet);
+                    uboDescriptorWrite.dstSet(descriptorSet);
+                    samplerDescriptorWrite.dstSet(descriptorSet);
 
-                vkUpdateDescriptorSets(Variables.device, descriptorWrites, null);
+                    vkUpdateDescriptorSets(Variables.device, descriptorWrites, null);
 
-                Variables.descriptorSets.add(descriptorSet);
+                    descriptorSets.add(descriptorSet);
+                }
+
+                descriptorSetsMap.put(compiledTexture, descriptorSets);
             }
         }
     }

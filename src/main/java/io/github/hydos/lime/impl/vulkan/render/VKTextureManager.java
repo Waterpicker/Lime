@@ -2,8 +2,11 @@ package io.github.hydos.lime.impl.vulkan.render;
 
 import io.github.hydos.lime.core.math.LimeMath;
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.elements.TexturedVulkanRenderObject;
+import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKMemoryUtils;
+import io.github.hydos.lime.impl.vulkan.texture.CompiledTexture;
 import io.github.hydos.lime.impl.vulkan.util.ImageUtils;
 import io.github.hydos.lime.impl.vulkan.util.Utils;
 import org.lwjgl.PointerBuffer;
@@ -16,6 +19,8 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static org.lwjgl.stb.STBImage.*;
@@ -24,10 +29,16 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class VKTextureManager {
 
-    public static void createTextureImage() {
+    public static List<CompiledTexture> compiledTextures = new ArrayList<>();
+    
+    public static TexturedVulkanRenderObject textureModel(String path, VulkanRenderObject object) {
+        if(checkForExistingCompiledTexture(path)){
+            return new TexturedVulkanRenderObject(object, getExistingTexture(path));
+        }
         try (MemoryStack stack = stackPush()) {
-
-            String filename = Paths.get(new URI(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource("textures/chalet.jpg")).toExternalForm())).toString();
+            CompiledTexture compiledTexture = new CompiledTexture();
+            compiledTexture.path = path;
+            String filename = Paths.get(new URI(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource(path)).toExternalForm())).toString();
 
             IntBuffer pWidth = stack.mallocInt(1);
             IntBuffer pHeight = stack.mallocInt(1);
@@ -37,7 +48,7 @@ public class VKTextureManager {
 
             long imageSize = pWidth.get(0) * pHeight.get(0) * 4; // pChannels.get(0);
 
-            Variables.mipLevels = (int) Math.floor(LimeMath.log2(Math.max(pWidth.get(0), pHeight.get(0)))) + 1;
+            compiledTexture.mipLevels = (int) Math.floor(LimeMath.log2(Math.max(pWidth.get(0), pHeight.get(0)))) + 1;
 
             if (pixels == null) {
                 throw new RuntimeException("Failed to load texture image " + filename);
@@ -64,40 +75,63 @@ public class VKTextureManager {
             LongBuffer pTextureImage = stack.mallocLong(1);
             LongBuffer pTextureImageMemory = stack.mallocLong(1);
             ImageUtils.createImage(pWidth.get(0), pHeight.get(0),
-                    Variables.mipLevels,
+                    compiledTexture.mipLevels,
                     VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
                     VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                     pTextureImage,
                     pTextureImageMemory);
 
-            Variables.textureImage = pTextureImage.get(0);
-            Variables.textureImageMemory = pTextureImageMemory.get(0);
+            compiledTexture.textureImage = pTextureImage.get(0);
+            compiledTexture.textureImageMemory = pTextureImageMemory.get(0);
 
-            Utils.transitionImageLayout(Variables.textureImage,
+            Utils.transitionImageLayout(compiledTexture.textureImage,
                     VK_FORMAT_R8G8B8A8_SRGB,
                     VK_IMAGE_LAYOUT_UNDEFINED,
                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    Variables.mipLevels);
+                    compiledTexture.mipLevels);
 
-            Utils.copyBufferToImage(pStagingBuffer.get(0), Variables.textureImage, pWidth.get(0), pHeight.get(0));
+            Utils.copyBufferToImage(pStagingBuffer.get(0), compiledTexture.textureImage, pWidth.get(0), pHeight.get(0));
 
             // Transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
-            ImageUtils.generateMipmaps(Variables.textureImage, VK_FORMAT_R8G8B8A8_SRGB, pWidth.get(0), pHeight.get(0), Variables.mipLevels);
+            ImageUtils.generateMipmaps(compiledTexture.textureImage, VK_FORMAT_R8G8B8A8_SRGB, pWidth.get(0), pHeight.get(0), compiledTexture.mipLevels);
 
             vkDestroyBuffer(Variables.device, pStagingBuffer.get(0), null);
             vkFreeMemory(Variables.device, pStagingBufferMemory.get(0), null);
 
+            compiledTextures.add(compiledTexture);
+            VKTextureManager.createTextureImageView(compiledTexture);
+            VKTextureManager.createTextureSampler(compiledTexture);
+            return new TexturedVulkanRenderObject(object, compiledTexture);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
-    public static void createTextureImageView() {
-        Variables.textureImageView = ImageUtils.createImageView(Variables.textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, Variables.mipLevels);
+    private static CompiledTexture getExistingTexture(String path) {
+        for(CompiledTexture texture : compiledTextures){
+            if(texture.path.equals(path)){
+                return texture;
+            }
+        }
+        return null;
     }
 
-    public static void createTextureSampler() {
+    private static boolean checkForExistingCompiledTexture(String path) {
+        for(CompiledTexture texture : compiledTextures){
+            if(texture.path.equals(path)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void createTextureImageView(CompiledTexture texture) {
+        texture.textureImageView = ImageUtils.createImageView(texture.textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, texture.mipLevels);
+    }
+
+    public static void createTextureSampler(CompiledTexture texture) {
         try (MemoryStack stack = stackPush()) {
             VkSamplerCreateInfo samplerInfo = VkSamplerCreateInfo.callocStack(stack);
             samplerInfo.sType(VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO);
@@ -114,7 +148,7 @@ public class VKTextureManager {
             samplerInfo.compareOp(VK_COMPARE_OP_ALWAYS);
             samplerInfo.mipmapMode(VK_SAMPLER_MIPMAP_MODE_LINEAR);
             samplerInfo.minLod(0); // Optional
-            samplerInfo.maxLod((float) Variables.mipLevels);
+            samplerInfo.maxLod((float) texture.mipLevels);
             samplerInfo.mipLodBias(0); // Optional
 
             LongBuffer pTextureSampler = stack.mallocLong(1);
@@ -123,7 +157,7 @@ public class VKTextureManager {
                 throw new RuntimeException("Failed to create texture sampler");
             }
 
-            Variables.textureSampler = pTextureSampler.get(0);
+            texture.textureSampler = pTextureSampler.get(0);
         }
     }
 }

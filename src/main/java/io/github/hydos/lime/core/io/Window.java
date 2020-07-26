@@ -15,7 +15,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_CLIENT_API;
 import static org.lwjgl.glfw.GLFW.GLFW_NO_API;
 
 public class Window {
-    private static final Vector3f backgroundColour = new Vector3f(118f, 215f, 234f);
+    private static final Vector3f clearColour = new Vector3f(118f, 215f, 234f);
     private static final boolean[] mouseButtons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
     private static final GLFWImage.Buffer iconBuffer = null;
     public static int width;
@@ -31,24 +31,13 @@ public class Window {
     private static long window;
     private static double fpsCap, time, processedTime = 0;
     private static boolean fullscreen = false;
-    // FIXME: temp stuff to test out FBO fixes
-    private static int oldWindowWidth = Window.getWidth();
-    private static int oldWindowHeight = Window.getHeight();
 
     public static int getWidth() {
         return width;
     }
 
-    public static void setWidth(int width) {
-        Window.width = width;
-    }
-
     public static int getHeight() {
         return height;
-    }
-
-    public static void setHeight(int height) {
-        Window.height = height;
     }
 
     public static boolean isFullscreen() {
@@ -84,9 +73,6 @@ public class Window {
         GLFW.glfwShowWindow(getWindow());
         time = getTime();
         getCurrentTime();
-
-        oldWindowWidth = getWidth();
-        oldWindowHeight = getHeight();
     }
 
     public static void create(int width, int height, String title, float fpsCap) {
@@ -100,8 +86,8 @@ public class Window {
         Window.setIcon();
     }
 
-    public static Vector3f getColour() {
-        return Window.backgroundColour;
+    public static Vector3f getClearColour() {
+        return Window.clearColour;
     }
 
     private static long getCurrentTime() {

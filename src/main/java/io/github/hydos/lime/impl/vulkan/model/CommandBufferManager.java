@@ -51,7 +51,7 @@ public class CommandBufferManager {
             renderPassInfo.renderArea(renderArea);
 
             VkClearValue.Buffer clearValues = VkClearValue.callocStack(2, stack);
-            clearValues.get(0).color().float32(stack.floats(Window.getColour().x / 255, Window.getColour().y / 255, Window.getColour().z / 255, 1.0f)); //The screens clear colour
+            clearValues.get(0).color().float32(stack.floats(Window.getClearColour().x / 255, Window.getClearColour().y / 255, Window.getClearColour().z / 255, 1.0f)); //The screens clear colour
             clearValues.get(1).depthStencil().set(1.0f, 0);
 
             renderPassInfo.pClearValues(clearValues);

@@ -55,12 +55,6 @@ public class Variables {
     public static long depthImageMemory;
     public static long depthImageView;
 
-    public static int mipLevels;
-    public static long textureImage;
-    public static long textureImageMemory;
-    public static long textureImageView;
-    public static long textureSampler;
-
     public static List<VkCommandBuffer> commandBuffers;
 
     public static List<Frame> inFlightFrames;
@@ -73,7 +67,6 @@ public class Variables {
 
     public static ArrayList<Long> uniformBuffers;
     public static ArrayList<Long> uniformBuffersMemory;
-    public static ArrayList<Long> descriptorSets;
 
     public static boolean hasStencilComponent(int format) {
         return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;

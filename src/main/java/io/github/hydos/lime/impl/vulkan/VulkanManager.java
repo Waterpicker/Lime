@@ -27,11 +27,11 @@ public class VulkanManager {
 
     public static void cleanupVulkan() {
         SwapchainManager.cleanupSwapChain();
-
-        vkDestroySampler(Variables.device, Variables.textureSampler, null);
-        vkDestroyImageView(Variables.device, Variables.textureImageView, null);
-        vkDestroyImage(Variables.device, Variables.textureImage, null);
-        vkFreeMemory(Variables.device, Variables.textureImageMemory, null);
+// TODO: grab all entities from the vulkan instance and
+//        vkDestroySampler(Variables.device, Variables.textureSampler, null);
+//        vkDestroyImageView(Variables.device, Variables.textureImageView, null);
+//        vkDestroyImage(Variables.device, Variables.textureImage, null);
+//        vkFreeMemory(Variables.device, Variables.textureImageMemory, null);
 
         vkDestroyDescriptorSetLayout(Variables.device, DescriptorManager.descriptorSetLayout, null);
 

@@ -5,6 +5,7 @@ import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import io.github.hydos.lime.impl.vulkan.VulkanReg;
 import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
+import io.github.hydos.lime.impl.vulkan.elements.TexturedVulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.io.VKWindow;
 import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
@@ -37,8 +38,8 @@ public class VulkanExample {
 
     public static final Set<String> DEVICE_EXTENSIONS = Stream.of(KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME).collect(Collectors.toSet());
 
-    VulkanRenderObject chalet;
-    VulkanRenderObject dragon;
+    TexturedVulkanRenderObject chalet;
+    TexturedVulkanRenderObject dragon;
 
     public static void main(String[] args) {
         VulkanExample app = new VulkanExample();
@@ -61,12 +62,9 @@ public class VulkanExample {
         VKModelLoader.VKMesh chaletModel = VKModelLoader.loadModel(chaletModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
         VKModelLoader.VKMesh dragonModel = VKModelLoader.loadModel(dragonModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
 
-        chalet = new VulkanRenderObject(chaletModel, new Vector3f(0, -1, 0), -90, 0, 0, new Vector3f(1f, 1f, 1f));
-        dragon = new VulkanRenderObject(dragonModel, new Vector3f(0, -1, 0), 0, 0, 0, new Vector3f(0.3f, 0.3f, 0.3f));
+        dragon = VKTextureManager.textureModel("textures/skybox/back.png", new VulkanRenderObject(dragonModel, new Vector3f(0, -1, 0), 0, 0, 0, new Vector3f(0.3f, 0.3f, 0.3f)));
 
-        //FIXME FIXME FIXME FIXME HARDCODED IMAGE. FIX OR REMOVE LIME
-        VKTextureManager.createTextureImage();
-        VKTextureManager.createTextureImageView();
+        chalet = VKTextureManager.textureModel("textures/chalet.jpg", new VulkanRenderObject(chaletModel, new Vector3f(0, -1, 0), -90, 0, 0, new Vector3f(1f, 1f, 1f)));
 
         VulkanManager.getInstance().entityRenderer.processEntity(chalet);
         VulkanManager.getInstance().entityRenderer.processEntity(dragon);
@@ -89,7 +87,6 @@ public class VulkanExample {
         DeviceManager.pickPhysicalDevice();
         DeviceManager.createLogicalDevice();
         Utils.createCommandPool();
-        VKTextureManager.createTextureSampler();
         DescriptorManager.createUBODescriptorSetLayout();
         loadModels();
         SwapchainManager.createSwapChainObjects();
@@ -107,7 +104,7 @@ public class VulkanExample {
 
     private void doStuff() {
         if (Window.shouldRender()) {
-            dragon.increasePosition(0, 0f, 0.1f);
+            dragon.increasePosition(0, 0f, -0.01f);
             chalet.increaseRotation(0, 0, 5);
             chalet.setPosition(new Vector3f(0, 0.001f, 0));
             Frame.drawFrame();

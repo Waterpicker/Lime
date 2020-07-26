@@ -47,6 +47,8 @@ public class Utils {
             VkPhysicalDeviceProperties physicalDeviceProperties = VkPhysicalDeviceProperties.mallocStack(stack);
             vkGetPhysicalDeviceProperties(Variables.physicalDevice, physicalDeviceProperties);
 
+            System.out.println(physicalDeviceProperties.limits().minUniformBufferOffsetAlignment());
+
             int sampleCountFlags = physicalDeviceProperties.limits().framebufferColorSampleCounts()
                     & physicalDeviceProperties.limits().framebufferDepthSampleCounts();
 
