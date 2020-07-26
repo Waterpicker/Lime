@@ -39,8 +39,9 @@ public class VulkanReg {
             // We need to retrieve the pointer of the created instance
             PointerBuffer instancePtr = stack.mallocPointer(1);
 
-            if (vkCreateInstance(createInfo, null, instancePtr) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create instance");
+            int i = vkCreateInstance(createInfo, null, instancePtr);
+            if (i != VK_SUCCESS) {
+                throw new RuntimeException("Failed to create instance, " + i);
             }
 
             Variables.instance = new VkInstance(instancePtr.get(0), createInfo);

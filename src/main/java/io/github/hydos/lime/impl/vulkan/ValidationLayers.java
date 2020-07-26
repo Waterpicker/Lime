@@ -9,7 +9,6 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 import static org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
@@ -41,6 +40,7 @@ public class ValidationLayers {
         if (ENABLE_VALIDATION_LAYERS) {
             VALIDATION_LAYERS = new HashSet<>();
             VALIDATION_LAYERS.add("VK_LAYER_KHRONOS_validation");
+            VALIDATION_LAYERS.add("VK_LAYER_LUNARG_standard_validation");
         } else {
             VALIDATION_LAYERS = null;
         }
@@ -119,11 +119,9 @@ public class ValidationLayers {
 
             vkEnumerateInstanceLayerProperties(layerCount, availableLayers);
 
-            Set<String> availableLayerNames = availableLayers.stream()
+            return availableLayers.stream()
                     .map(VkLayerProperties::layerNameString)
-                    .collect(Collectors.toSet());
-
-            return availableLayerNames.containsAll(VALIDATION_LAYERS);
+                    .anyMatch(VALIDATION_LAYERS::contains);
         }
     }
 
@@ -150,8 +148,7 @@ public class ValidationLayers {
     public static PointerBuffer addExtensions(PointerBuffer glfwExtensions) {
         if (ENABLE_VALIDATION_LAYERS) {
             MemoryStack stack = MemoryStack.stackGet();
-
-            PointerBuffer extensions = stack.mallocPointer(glfwExtensions.capacity());
+            PointerBuffer extensions = stack.mallocPointer(glfwExtensions.capacity() + 1);
 
             extensions.put(glfwExtensions);
             extensions.put(stack.UTF8(VK_EXT_DEBUG_UTILS_EXTENSION_NAME));
