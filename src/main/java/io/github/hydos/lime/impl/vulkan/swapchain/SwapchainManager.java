@@ -24,7 +24,6 @@ import static org.lwjgl.glfw.GLFW.glfwWaitEvents;
 import static org.lwjgl.system.MemoryStack.stackGet;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.KHRSurface.*;
-import static org.lwjgl.vulkan.KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR;
 import static org.lwjgl.vulkan.KHRSwapchain.*;
 import static org.lwjgl.vulkan.VK10.*;
 
@@ -99,7 +98,7 @@ public class SwapchainManager {
 
         return actualExtent;
     }
-    
+
     public static VulkanExample.SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, MemoryStack stack) {
 
         VulkanExample.SwapChainSupportDetails details = new VulkanExample.SwapChainSupportDetails();

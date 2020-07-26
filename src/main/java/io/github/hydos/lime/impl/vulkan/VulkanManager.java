@@ -10,7 +10,6 @@ import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
 
 import static org.lwjgl.vulkan.KHRSurface.vkDestroySurfaceKHR;
 import static org.lwjgl.vulkan.VK10.*;
-import static org.lwjgl.vulkan.VK10.vkDestroyInstance;
 
 public class VulkanManager {
     private static VulkanManager INSTANCE;
@@ -24,19 +23,6 @@ public class VulkanManager {
 
     public static VulkanManager getInstance() {
         return INSTANCE;
-    }
-
-    public void createRenderers() {
-        entityRenderer = new EntityRenderer();
-        Variables.renderManager.addRenderer(entityRenderer);
-    }
-
-    public void cleanup() {
-        for (VulkanRenderObject entity : entityRenderer.entities) {
-            VKBufferMesh bufferMesh = entity.getModel();
-            bufferMesh.cleanup();
-        }
-        cleanupVulkan();
     }
 
     public static void cleanupVulkan() {
@@ -66,6 +52,19 @@ public class VulkanManager {
         vkDestroyInstance(Variables.instance, null);
 
         Window.destroy();
+    }
+
+    public void createRenderers() {
+        entityRenderer = new EntityRenderer();
+        Variables.renderManager.addRenderer(entityRenderer);
+    }
+
+    public void cleanup() {
+        for (VulkanRenderObject entity : entityRenderer.entities) {
+            VKBufferMesh bufferMesh = entity.getModel();
+            bufferMesh.cleanup();
+        }
+        cleanupVulkan();
     }
 
 }

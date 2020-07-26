@@ -9,7 +9,8 @@ import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 
 import static org.lwjgl.system.MemoryStack.stackPush;
-import static org.lwjgl.vulkan.VK10.*;
+import static org.lwjgl.vulkan.VK10.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+import static org.lwjgl.vulkan.VK10.VK_SUCCESS;
 
 /**
  * will be used in the future to manage multiple shaders

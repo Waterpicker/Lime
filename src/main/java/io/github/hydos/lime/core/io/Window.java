@@ -15,6 +15,9 @@ import static org.lwjgl.glfw.GLFW.GLFW_CLIENT_API;
 import static org.lwjgl.glfw.GLFW.GLFW_NO_API;
 
 public class Window {
+    private static final Vector3f backgroundColour = new Vector3f(118f, 215f, 234f);
+    private static final boolean[] mouseButtons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+    private static final GLFWImage.Buffer iconBuffer = null;
     public static int width;
     public static int height;
     public static double dy = 0;
@@ -26,9 +29,6 @@ public class Window {
     static double newY = 0;
     private static String title;
     private static long window;
-    private static final Vector3f backgroundColour = new Vector3f(118f, 215f, 234f);
-    private static final boolean[] mouseButtons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
-    private static final GLFWImage.Buffer iconBuffer = null;
     private static double fpsCap, time, processedTime = 0;
     private static boolean fullscreen = false;
     // FIXME: temp stuff to test out FBO fixes

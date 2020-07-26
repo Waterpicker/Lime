@@ -8,10 +8,9 @@ import org.joml.Vector3f;
 public class TexturedVulkanRenderObject extends RenderObject {
 
     public static int lastModelIdRegistered = 0;
-
-    private VKBufferMesh model = null;
-    private final VKModelLoader.VKMesh rawModel;
     public final int id;
+    private final VKModelLoader.VKMesh rawModel;
+    private VKBufferMesh model = null;
 
     public TexturedVulkanRenderObject(VKModelLoader.VKMesh rawModel, Vector3f position, float rotX, float rotY, float rotZ, Vector3f scale) {
         id = TexturedVulkanRenderObject.lastModelIdRegistered;

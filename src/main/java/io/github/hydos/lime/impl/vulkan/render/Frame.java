@@ -22,12 +22,11 @@ import static org.lwjgl.vulkan.VK10.*;
  */
 public class Frame {
 
+    public static final long UINT64_MAX = 0xFFFFFFFFFFFFFFFFL;
+    public static final int MAX_FRAMES_IN_FLIGHT = 2;
     private final long imageAvailableSemaphore;
     private final long renderFinishedSemaphore;
     private final long fence;
-
-    public static final long UINT64_MAX = 0xFFFFFFFFFFFFFFFFL;
-    public static final int MAX_FRAMES_IN_FLIGHT = 2;
 
     public Frame(long imageAvailableSemaphore, long renderFinishedSemaphore, long fence) {
         this.imageAvailableSemaphore = imageAvailableSemaphore;

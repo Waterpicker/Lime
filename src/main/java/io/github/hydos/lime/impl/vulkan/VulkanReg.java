@@ -1,6 +1,5 @@
 package io.github.hydos.lime.impl.vulkan;
 
-import io.github.hydos.lime.impl.vulkan.util.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkApplicationInfo;

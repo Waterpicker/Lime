@@ -25,12 +25,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.lwjgl.glfw.GLFW.glfwGetFramebufferSize;
 import static org.lwjgl.system.MemoryStack.stackGet;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class Utils {
+    static final int mat4Size = 16 * Float.BYTES;
+    static final int modelArraySize = mat4Size * 10; //FIXME: also hardcoded
+
     public static int findDepthFormat() {
         return Utils.findSupportedFormat(
                 stackGet().ints(VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT),
@@ -328,9 +330,6 @@ public class Utils {
         }
     }
 
-    static final int mat4Size = 16 * Float.BYTES;
-    static final int modelArraySize = mat4Size * 10; //FIXME: also hardcoded
-
     private static void putUBOInMemory(ByteBuffer buffer, VulkanExample.Ubo ubo) {
         putArrayInUboMemory(buffer, ubo.model);
         ubo.view.get(AlignmentUtils.alignas(modelArraySize, AlignmentUtils.alignof(ubo.view)), buffer);
@@ -405,7 +404,7 @@ public class Utils {
             }
 
             //Constant stuff generally goes here. later on view matrix will use the Math class one.
-            ubo.view = LimeLegacyMaths.calcView(new Vector3f(2,0,0), new Vector3f(0, 0, 0));
+            ubo.view = LimeLegacyMaths.calcView(new Vector3f(2, 0, 0), new Vector3f(0, 0, 0));
             ubo.proj.perspective((float) java.lang.Math.toRadians(45), (float) Variables.swapChainExtent.width() / (float) Variables.swapChainExtent.height(), 0.1f, 10.0f);
             ubo.proj.m11(ubo.proj.m11() * -1);
 
