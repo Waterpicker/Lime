@@ -2,7 +2,7 @@ package io.github.hydos.lime.impl.vulkan.render;
 
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.swapchain.SwapchainManager;
-import io.github.hydos.lime.impl.vulkan.util.Utils;
+import io.github.hydos.lime.impl.vulkan.ubo.UboManager;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkSubmitInfo;
@@ -55,7 +55,7 @@ public class Frame {
             Variables.currentImageIndex = imageIndex;
             if (Variables.imagesInFlight.containsKey(imageIndex)) {
                 vkWaitForFences(Variables.device, Variables.imagesInFlight.get(imageIndex).fence(), true, UINT64_MAX);
-                Utils.updateUniformBuffer(Variables.currentImageIndex);
+                UboManager.updateUniformBuffers(Variables.currentImageIndex);
             }
 
             Variables.imagesInFlight.put(imageIndex, thisFrame);

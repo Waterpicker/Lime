@@ -1,7 +1,7 @@
 package io.github.hydos.lime.impl.vulkan.util;
 
 import io.github.hydos.example.VulkanExample;
-import io.github.hydos.lime.core.math.LimeLegacyMaths;
+import io.github.hydos.lime.core.math.LimeMath;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
@@ -30,8 +30,6 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class Utils {
-    static final int mat4Size = 16 * Float.BYTES;
-    static final int modelArraySize = mat4Size * 10; //FIXME: also hardcoded
 
     public static int findDepthFormat() {
         return Utils.findSupportedFormat(
@@ -41,14 +39,9 @@ public class Utils {
     }
 
     public static int getMaxUsableSampleCount() {
-
         try (MemoryStack stack = stackPush()) {
-
             VkPhysicalDeviceProperties physicalDeviceProperties = VkPhysicalDeviceProperties.mallocStack(stack);
             vkGetPhysicalDeviceProperties(Variables.physicalDevice, physicalDeviceProperties);
-
-            System.out.println(physicalDeviceProperties.limits().minUniformBufferOffsetAlignment());
-
             int sampleCountFlags = physicalDeviceProperties.limits().framebufferColorSampleCounts()
                     & physicalDeviceProperties.limits().framebufferDepthSampleCounts();
 
@@ -70,7 +63,6 @@ public class Utils {
             if ((sampleCountFlags & VK_SAMPLE_COUNT_2_BIT) != 0) {
                 return VK_SAMPLE_COUNT_2_BIT;
             }
-
             return VK_SAMPLE_COUNT_1_BIT;
         }
     }
@@ -315,39 +307,6 @@ public class Utils {
         }
     }
 
-    public static void createUniformBuffers() {
-        try (MemoryStack stack = stackPush()) {
-            Variables.uniformBuffers = new ArrayList<>(Variables.swapChainImages.size());
-            Variables.uniformBuffersMemory = new ArrayList<>(Variables.swapChainImages.size());
-
-            LongBuffer pBuffer = stack.mallocLong(1);
-            LongBuffer pBufferMemory = stack.mallocLong(1);
-
-            for (int i = 0; i < Variables.swapChainImages.size(); i++) {
-                VKBufferUtils.createBuffer(VulkanExample.GenericUbo.SIZEOF, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, pBuffer, pBufferMemory);
-
-                Variables.uniformBuffers.add(pBuffer.get(0));
-                Variables.uniformBuffersMemory.add(pBufferMemory.get(0));
-            }
-        }
-    }
-
-    private static void putUBOInMemory(ByteBuffer buffer, VulkanExample.GenericUbo ubo) {
-        putArrayInUboMemory(buffer, ubo.model);
-        ubo.view.get(AlignmentUtils.alignas(modelArraySize, AlignmentUtils.alignof(ubo.view)), buffer);
-        ubo.proj.get(AlignmentUtils.alignas(modelArraySize + mat4Size, AlignmentUtils.alignof(ubo.view)), buffer);
-    }
-
-    private static void putArrayInUboMemory(ByteBuffer buffer, Matrix4f[] models) {
-        int i = 0;
-        for (Matrix4f mat : models) {
-            if (mat == null)
-                mat = new Matrix4f();
-            mat.get(mat4Size * i, buffer);
-            i++;
-        }
-    }
-
     public static int findMemoryType(int typeFilter, int properties) {
 
         VkPhysicalDeviceMemoryProperties memProperties = VkPhysicalDeviceMemoryProperties.mallocStack();
@@ -393,29 +352,6 @@ public class Utils {
                 Variables.inFlightFrames.add(new Frame(pImageAvailableSemaphore.get(0), pRenderFinishedSemaphore.get(0), pFence.get(0)));
             }
 
-        }
-    }
-
-    public static void updateUniformBuffer(int currentImage) {
-        try (MemoryStack stack = stackPush()) {
-
-            VulkanExample.GenericUbo ubo = new VulkanExample.GenericUbo();
-
-            for (VulkanRenderObject object : VulkanManager.getInstance().entityRenderer.entities) {
-                ubo.model[object.id] = LimeLegacyMaths.createTransformationMatrix(object.getPosition(), object.getRotX(), object.getRotY(), object.getRotZ(), object.getScale());
-            }
-
-            //Constant stuff generally goes here. later on view matrix will use the Math class one.
-            ubo.view = LimeLegacyMaths.calcView(new Vector3f(2, 0, 0), new Vector3f(0, 0, 0));
-            ubo.proj.perspective((float) java.lang.Math.toRadians(45), (float) Variables.swapChainExtent.width() / (float) Variables.swapChainExtent.height(), 0.1f, 10.0f);
-            ubo.proj.m11(ubo.proj.m11() * -1);
-
-            PointerBuffer data = stack.mallocPointer(1);
-            vkMapMemory(Variables.device, Variables.uniformBuffersMemory.get(currentImage), 0, VulkanExample.GenericUbo.SIZEOF * VulkanManager.getInstance().entityRenderer.entities.size(), 0, data);
-            {
-                putUBOInMemory(data.getByteBuffer(0, VulkanExample.GenericUbo.SIZEOF * VulkanManager.getInstance().entityRenderer.entities.size()), ubo);
-            }
-            vkUnmapMemory(Variables.device, Variables.uniformBuffersMemory.get(currentImage));
         }
     }
 

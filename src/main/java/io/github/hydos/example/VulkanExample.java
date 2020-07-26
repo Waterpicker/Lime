@@ -1,5 +1,6 @@
 package io.github.hydos.example;
 
+import io.github.hydos.lime.core.PlayerController;
 import io.github.hydos.lime.core.io.Window;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.VulkanManager;
@@ -96,6 +97,7 @@ public class VulkanExample {
     private void mainLoop() {
         while (!Window.closed()) {
             doStuff();
+            PlayerController.onInput();
         }
 
         // Wait for the device to complete all operations before release resources
@@ -128,20 +130,5 @@ public class VulkanExample {
         public VkSurfaceCapabilitiesKHR capabilities;
         public VkSurfaceFormatKHR.Buffer formats;
         public IntBuffer presentModes;
-    }
-
-    public static class GenericUbo {
-        public static final int MATRIX4F_SIZE = 16 * Float.BYTES;
-        public static final int SIZEOF = (2 * MATRIX4F_SIZE) + MATRIX4F_SIZE * 10;
-
-        public Matrix4f[] model;
-        public Matrix4f view;
-        public Matrix4f proj;
-
-        public GenericUbo() {
-            model = new Matrix4f[10]; //TMP: 10 object cap? FIXME
-            view = new Matrix4f();
-            proj = new Matrix4f();
-        }
     }
 }

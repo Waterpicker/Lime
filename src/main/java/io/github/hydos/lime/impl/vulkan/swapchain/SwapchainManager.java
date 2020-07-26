@@ -10,6 +10,7 @@ import io.github.hydos.lime.impl.vulkan.render.VKRenderManager;
 import io.github.hydos.lime.impl.vulkan.render.VKTextureManager;
 import io.github.hydos.lime.impl.vulkan.render.pipelines.VKPipelineManager;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
+import io.github.hydos.lime.impl.vulkan.ubo.UboManager;
 import io.github.hydos.lime.impl.vulkan.util.ImageUtils;
 import io.github.hydos.lime.impl.vulkan.util.Utils;
 import org.lwjgl.glfw.GLFW;
@@ -34,27 +35,18 @@ public class SwapchainManager {
         vkDestroyImageView(Variables.device, Variables.colorImageView, null);
         vkDestroyImage(Variables.device, Variables.colorImage, null);
         vkFreeMemory(Variables.device, Variables.colorImageMemory, null);
-
         vkDestroyImageView(Variables.device, Variables.depthImageView, null);
         vkDestroyImage(Variables.device, Variables.depthImage, null);
         vkFreeMemory(Variables.device, Variables.depthImageMemory, null);
         Variables.uniformBuffers.forEach(ubo -> vkDestroyBuffer(Variables.device, ubo, null));
         Variables.uniformBuffersMemory.forEach(uboMemory -> vkFreeMemory(Variables.device, uboMemory, null));
-
         vkDestroyDescriptorPool(Variables.device, DescriptorManager.descriptorPool, null);
-
         Variables.swapChainFramebuffers.forEach(framebuffer -> vkDestroyFramebuffer(Variables.device, framebuffer, null));
-
         vkFreeCommandBuffers(Variables.device, Variables.commandPool, Utils.asPointerBuffer(Variables.commandBuffers));
-
         vkDestroyPipeline(Variables.device, Variables.graphicsPipeline, null);
-
         vkDestroyPipelineLayout(Variables.device, Variables.pipelineLayout, null);
-
         vkDestroyRenderPass(Variables.device, Variables.renderPass, null);
-
         Variables.swapChainImageViews.forEach(imageView -> vkDestroyImageView(Variables.device, imageView, null));
-
         vkDestroySwapchainKHR(Variables.device, Variables.swapChain, null);
     }
 
@@ -228,7 +220,7 @@ public class SwapchainManager {
         Utils.createColorResources();
         Utils.createDepthResources();
         Utils.createFramebuffers();
-        Utils.createUniformBuffers();
+        UboManager.createUniformBuffers();
         DescriptorManager.createDescriptorPool();
         DescriptorManager.createDescriptorSets(VKTextureManager.compiledTextures);
         CommandBufferManager.createCommandBuffers();
