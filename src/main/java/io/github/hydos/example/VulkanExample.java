@@ -62,9 +62,9 @@ public class VulkanExample {
         VKModelLoader.VKMesh chaletModel = VKModelLoader.loadModel(chaletModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
         VKModelLoader.VKMesh dragonModel = VKModelLoader.loadModel(dragonModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
 
-        dragon = VKTextureManager.textureModel("textures/skybox/back.png", new VulkanRenderObject(dragonModel, new Vector3f(0, -1, 0), 0, 0, 0, new Vector3f(0.3f, 0.3f, 0.3f)));
+        dragon = VKTextureManager.textureModel("textures/skybox/back.png", new VulkanRenderObject(dragonModel, new Vector3f(-2, -1, 0), 0, 0, 0, new Vector3f(0.3f, 0.3f, 0.3f)));
 
-        chalet = VKTextureManager.textureModel("textures/chalet.jpg", new VulkanRenderObject(chaletModel, new Vector3f(0, -1, 0), -90, 0, 0, new Vector3f(1f, 1f, 1f)));
+        chalet = VKTextureManager.textureModel("textures/chalet.jpg", new VulkanRenderObject(chaletModel, new Vector3f(-2, -0.4f, 0.5f), -90, 0, 0, new Vector3f(1f, 1f, 1f)));
 
         VulkanManager.getInstance().entityRenderer.processEntity(chalet);
         VulkanManager.getInstance().entityRenderer.processEntity(dragon);
@@ -104,9 +104,8 @@ public class VulkanExample {
 
     private void doStuff() {
         if (Window.shouldRender()) {
-            dragon.increasePosition(0, 0f, -0.01f);
+            dragon.increasePosition(0, 0f, -0.004f);
             chalet.increaseRotation(0, 0, 5);
-            chalet.setPosition(new Vector3f(0, 0.001f, 0));
             Frame.drawFrame();
         }
         glfwPollEvents();
@@ -131,7 +130,7 @@ public class VulkanExample {
         public IntBuffer presentModes;
     }
 
-    public static class Ubo {
+    public static class GenericUbo {
         public static final int MATRIX4F_SIZE = 16 * Float.BYTES;
         public static final int SIZEOF = (2 * MATRIX4F_SIZE) + MATRIX4F_SIZE * 10;
 
@@ -139,7 +138,7 @@ public class VulkanExample {
         public Matrix4f view;
         public Matrix4f proj;
 
-        public Ubo() {
+        public GenericUbo() {
             model = new Matrix4f[10]; //TMP: 10 object cap? FIXME
             view = new Matrix4f();
             proj = new Matrix4f();

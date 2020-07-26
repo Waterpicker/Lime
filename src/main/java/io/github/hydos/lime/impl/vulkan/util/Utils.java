@@ -324,7 +324,7 @@ public class Utils {
             LongBuffer pBufferMemory = stack.mallocLong(1);
 
             for (int i = 0; i < Variables.swapChainImages.size(); i++) {
-                VKBufferUtils.createBuffer(VulkanExample.Ubo.SIZEOF, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, pBuffer, pBufferMemory);
+                VKBufferUtils.createBuffer(VulkanExample.GenericUbo.SIZEOF, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, pBuffer, pBufferMemory);
 
                 Variables.uniformBuffers.add(pBuffer.get(0));
                 Variables.uniformBuffersMemory.add(pBufferMemory.get(0));
@@ -332,7 +332,7 @@ public class Utils {
         }
     }
 
-    private static void putUBOInMemory(ByteBuffer buffer, VulkanExample.Ubo ubo) {
+    private static void putUBOInMemory(ByteBuffer buffer, VulkanExample.GenericUbo ubo) {
         putArrayInUboMemory(buffer, ubo.model);
         ubo.view.get(AlignmentUtils.alignas(modelArraySize, AlignmentUtils.alignof(ubo.view)), buffer);
         ubo.proj.get(AlignmentUtils.alignas(modelArraySize + mat4Size, AlignmentUtils.alignof(ubo.view)), buffer);
@@ -399,7 +399,7 @@ public class Utils {
     public static void updateUniformBuffer(int currentImage) {
         try (MemoryStack stack = stackPush()) {
 
-            VulkanExample.Ubo ubo = new VulkanExample.Ubo();
+            VulkanExample.GenericUbo ubo = new VulkanExample.GenericUbo();
 
             for (VulkanRenderObject object : VulkanManager.getInstance().entityRenderer.entities) {
                 ubo.model[object.id] = LimeLegacyMaths.createTransformationMatrix(object.getPosition(), object.getRotX(), object.getRotY(), object.getRotZ(), object.getScale());
@@ -411,9 +411,9 @@ public class Utils {
             ubo.proj.m11(ubo.proj.m11() * -1);
 
             PointerBuffer data = stack.mallocPointer(1);
-            vkMapMemory(Variables.device, Variables.uniformBuffersMemory.get(currentImage), 0, VulkanExample.Ubo.SIZEOF * VulkanManager.getInstance().entityRenderer.entities.size(), 0, data);
+            vkMapMemory(Variables.device, Variables.uniformBuffersMemory.get(currentImage), 0, VulkanExample.GenericUbo.SIZEOF * VulkanManager.getInstance().entityRenderer.entities.size(), 0, data);
             {
-                putUBOInMemory(data.getByteBuffer(0, VulkanExample.Ubo.SIZEOF * VulkanManager.getInstance().entityRenderer.entities.size()), ubo);
+                putUBOInMemory(data.getByteBuffer(0, VulkanExample.GenericUbo.SIZEOF * VulkanManager.getInstance().entityRenderer.entities.size()), ubo);
             }
             vkUnmapMemory(Variables.device, Variables.uniformBuffersMemory.get(currentImage));
         }

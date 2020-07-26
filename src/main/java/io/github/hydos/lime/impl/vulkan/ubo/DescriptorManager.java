@@ -46,7 +46,7 @@ public class DescriptorManager {
 
                 VkDescriptorBufferInfo.Buffer bufferInfo = VkDescriptorBufferInfo.callocStack(1, stack);
                 bufferInfo.offset(0);
-                bufferInfo.range(VulkanExample.Ubo.SIZEOF);
+                bufferInfo.range(VulkanExample.GenericUbo.SIZEOF);
 
                 VkDescriptorImageInfo.Buffer imageInfo = VkDescriptorImageInfo.callocStack(1, stack);
                 imageInfo.imageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
