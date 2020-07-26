@@ -23,6 +23,7 @@ public class Variables {
 
     public static VkInstance instance;
     public static long surface;
+    public static long debugMessenger;
 
     public static VkPhysicalDevice physicalDevice;
     public static VkDevice device;
@@ -73,6 +74,7 @@ public class Variables {
     }
 
     public static PointerBuffer getRequiredExtensions() {
-        return glfwGetRequiredInstanceExtensions();
+        PointerBuffer glfwExtensions = glfwGetRequiredInstanceExtensions();
+        return ValidationLayers.addExtensions(glfwExtensions);
     }
 }

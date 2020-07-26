@@ -1,6 +1,7 @@
 package io.github.hydos.example;
 
 import io.github.hydos.lime.core.io.Window;
+import io.github.hydos.lime.impl.vulkan.ValidationLayers;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import io.github.hydos.lime.impl.vulkan.VulkanReg;
@@ -81,6 +82,7 @@ public class VulkanExample {
 
     private void initVulkan() {
         VulkanReg.createInstance();
+        ValidationLayers.setupDebugMessenger();
         VKWindow.createSurface();
         VulkanManager.init();
         VulkanManager.getInstance().createRenderers();

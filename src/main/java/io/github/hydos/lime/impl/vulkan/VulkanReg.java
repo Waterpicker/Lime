@@ -12,6 +12,7 @@ import static org.lwjgl.vulkan.VK10.*;
 public class VulkanReg {
 
     public static void createInstance() {
+        ValidationLayers.initialize();
 
         try (MemoryStack stack = stackPush()) {
 
@@ -32,6 +33,8 @@ public class VulkanReg {
             createInfo.pApplicationInfo(appInfo);
             // enabledExtensionCount is implicitly set when you call ppEnabledExtensionNames
             createInfo.ppEnabledExtensionNames(Variables.getRequiredExtensions());
+
+            ValidationLayers.initialize2(createInfo, stack);
 
             // We need to retrieve the pointer of the created instance
             PointerBuffer instancePtr = stack.mallocPointer(1);

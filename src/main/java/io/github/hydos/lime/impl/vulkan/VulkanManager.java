@@ -51,6 +51,7 @@ public class VulkanManager {
 
         vkDestroyInstance(Variables.instance, null);
 
+        ValidationLayers.cleanup();
         Window.destroy();
     }
 
