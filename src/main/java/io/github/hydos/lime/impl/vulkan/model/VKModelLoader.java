@@ -19,85 +19,61 @@ import static org.lwjgl.assimp.Assimp.aiImportFile;
 public class VKModelLoader {
 
     public static VKMesh loadModel(File file, int flags) {
-
         try (AIScene scene = aiImportFile(file.getAbsolutePath(), flags)) {
-
             if (scene == null || scene.mRootNode() == null) {
                 throw new RuntimeException("Could not load model: " + aiGetErrorString());
             }
-
             VKMesh model = new VKMesh();
-
-            processNode(scene.mRootNode(), scene, model);
-
+            processNode(requireNonNull(scene.mRootNode()), scene, model);
             return model;
         }
     }
 
     private static void processNode(AINode node, AIScene scene, VKMesh model) {
-
         if (node.mMeshes() != null) {
             processNodeMeshes(scene, node, model);
         }
-
         if (node.mChildren() != null) {
-
             PointerBuffer children = node.mChildren();
-
             for (int i = 0; i < node.mNumChildren(); i++) {
                 processNode(AINode.create(children.get(i)), scene, model);
             }
-
         }
-
     }
 
     private static void processNodeMeshes(AIScene scene, AINode node, VKMesh model) {
-
         PointerBuffer pMeshes = scene.mMeshes();
         IntBuffer meshIndices = node.mMeshes();
-
-        for (int i = 0; i < meshIndices.capacity(); i++) {
+        for (int i = 0; i < requireNonNull(meshIndices).capacity(); i++) {
             AIMesh mesh = AIMesh.create(pMeshes.get(meshIndices.get(i)));
-            processMesh(scene, mesh, model);
+            processMesh(mesh, model);
         }
-
     }
 
-    private static void processMesh(AIScene scene, AIMesh mesh, VKMesh model) {
-
+    private static void processMesh(AIMesh mesh, VKMesh model) {
         processPositions(mesh, model.positions);
         processTexCoords(mesh, model.texCoords);
-
         processIndices(mesh, model.indices);
     }
 
     private static void processPositions(AIMesh mesh, List<Vector3fc> positions) {
-
         AIVector3D.Buffer vertices = requireNonNull(mesh.mVertices());
-
         for (int i = 0; i < vertices.capacity(); i++) {
             AIVector3D position = vertices.get(i);
             positions.add(new Vector3f(position.x(), position.y(), position.z()));
         }
-
     }
 
     private static void processTexCoords(AIMesh mesh, List<Vector2fc> texCoords) {
-
         AIVector3D.Buffer aiTexCoords = requireNonNull(mesh.mTextureCoords(0));
-
         for (int i = 0; i < aiTexCoords.capacity(); i++) {
             final AIVector3D coords = aiTexCoords.get(i);
             texCoords.add(new Vector2f(coords.x(), coords.y()));
         }
-
     }
 
     private static void processIndices(AIMesh mesh, List<Integer> indices) {
-
         AIFace.Buffer aiFaces = mesh.mFaces();
-
         for (int i = 0; i < mesh.mNumFaces(); i++) {
             AIFace face = aiFaces.get(i);
             IntBuffer pIndices = face.mIndices();
@@ -105,11 +81,9 @@ public class VKModelLoader {
                 indices.add(pIndices.get(j));
             }
         }
-
     }
 
     public static class VKMesh {
-
         public final List<Vector3fc> positions;
         public final List<Vector2fc> texCoords;
         public final List<Integer> indices;
@@ -120,6 +94,4 @@ public class VKModelLoader {
             this.indices = new ArrayList<>();
         }
     }
-
-
 }

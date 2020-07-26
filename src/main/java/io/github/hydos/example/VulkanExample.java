@@ -61,8 +61,12 @@ public class VulkanExample {
         VKModelLoader.VKMesh chaletModel = VKModelLoader.loadModel(chaletModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
         VKModelLoader.VKMesh dragonModel = VKModelLoader.loadModel(dragonModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
 
-        chalet = new VulkanRenderObject(chaletModel, new Vector3f(0, 0, 0), -90, 0, 0, new Vector3f(1f, 1f, 1f));
+        chalet = new VulkanRenderObject(chaletModel, new Vector3f(0, -1, 0), -90, 0, 0, new Vector3f(1f, 1f, 1f));
         dragon = new VulkanRenderObject(dragonModel, new Vector3f(0, -1, 0), 0, 0, 0, new Vector3f(0.3f, 0.3f, 0.3f));
+
+        //FIXME FIXME FIXME FIXME HARDCODED IMAGE. FIX OR REMOVE LIME
+        VKTextureManager.createTextureImage();
+        VKTextureManager.createTextureImageView();
 
         VulkanManager.getInstance().entityRenderer.processEntity(chalet);
         VulkanManager.getInstance().entityRenderer.processEntity(dragon);
@@ -85,8 +89,6 @@ public class VulkanExample {
         DeviceManager.pickPhysicalDevice();
         DeviceManager.createLogicalDevice();
         Utils.createCommandPool();
-        VKTextureManager.createTextureImage();
-        VKTextureManager.createTextureImageView();
         VKTextureManager.createTextureSampler();
         DescriptorManager.createUBODescriptorSetLayout();
         loadModels();
@@ -95,7 +97,6 @@ public class VulkanExample {
     }
 
     private void mainLoop() {
-
         while (!Window.closed()) {
             doStuff();
         }
@@ -115,7 +116,6 @@ public class VulkanExample {
     }
 
     public static class QueueFamilyIndices {
-
         public Integer graphicsFamily;
         public Integer presentFamily;
 
@@ -129,15 +129,12 @@ public class VulkanExample {
     }
 
     public static class SwapChainSupportDetails {
-
         public VkSurfaceCapabilitiesKHR capabilities;
         public VkSurfaceFormatKHR.Buffer formats;
         public IntBuffer presentModes;
-
     }
 
     public static class Ubo {
-
         public static final int MATRIX4F_SIZE = 16 * Float.BYTES;
         public static final int SIZEOF = (2 * MATRIX4F_SIZE) + MATRIX4F_SIZE * 10;
 
@@ -150,7 +147,5 @@ public class VulkanExample {
             view = new Matrix4f();
             proj = new Matrix4f();
         }
-
     }
-
 }

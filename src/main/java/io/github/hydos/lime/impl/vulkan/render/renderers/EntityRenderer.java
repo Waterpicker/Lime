@@ -57,7 +57,6 @@ public class EntityRenderer extends Renderer {
 
     @Override
     public void VKRender(MemoryStack stack, VkCommandBuffer commandBuffer, int index) {
-
         for (VulkanRenderObject entity : entities) {
             VKBufferMesh mesh = entity.getModel();
 

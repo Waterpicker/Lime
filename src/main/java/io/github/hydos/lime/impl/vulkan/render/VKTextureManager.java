@@ -98,9 +98,7 @@ public class VKTextureManager {
     }
 
     public static void createTextureSampler() {
-
         try (MemoryStack stack = stackPush()) {
-
             VkSamplerCreateInfo samplerInfo = VkSamplerCreateInfo.callocStack(stack);
             samplerInfo.sType(VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO);
             samplerInfo.magFilter(VK_FILTER_LINEAR);
