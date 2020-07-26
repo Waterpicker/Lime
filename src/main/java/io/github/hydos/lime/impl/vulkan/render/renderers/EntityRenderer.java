@@ -1,19 +1,18 @@
 package io.github.hydos.lime.impl.vulkan.render.renderers;
 
 import io.github.hydos.lime.core.render.Renderer;
-import io.github.hydos.lime.impl.vulkan.VKVariables;
+import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
+import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
 import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 import io.github.hydos.lime.impl.vulkan.render.VKBufferMesh;
-import io.github.hydos.lime.impl.vulkan.utils.VKUtils;
+import io.github.hydos.lime.impl.vulkan.util.Utils;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkCommandBuffer;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +49,8 @@ public class EntityRenderer extends Renderer {
             processedMesh.indices[i] = mesh.indices.get(i);
         }
 
-        VKUtils.createVertexBuffer(processedMesh);
-        VKUtils.createIndexBuffer(processedMesh);
+        VKBufferUtils.createVertexBuffer(processedMesh);
+        VKBufferUtils.createIndexBuffer(processedMesh);
         entity.setModel(processedMesh);
         entities.add(entity);
     }
@@ -72,12 +71,12 @@ public class EntityRenderer extends Renderer {
             pushConstants[0] = entity.id;
 
             VK10.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    VKVariables.pipelineLayout,
+                    Variables.pipelineLayout,
                     0, stack.longs(
-                            VKVariables.descriptorSets.get(index)
+                            Variables.descriptorSets.get(index)
                     ),
                     null);
-            vkCmdPushConstants(commandBuffer, VKVariables.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstants);
+            vkCmdPushConstants(commandBuffer, Variables.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstants);
             vkCmdDrawIndexed(commandBuffer, mesh.vkMesh.indices.size(), 1, 0, 0, 0);
         }
 

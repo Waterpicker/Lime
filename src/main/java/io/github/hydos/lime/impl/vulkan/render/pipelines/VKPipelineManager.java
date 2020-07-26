@@ -1,9 +1,10 @@
 package io.github.hydos.lime.impl.vulkan.render.pipelines;
 
-import io.github.hydos.lime.impl.vulkan.VKVariables;
+import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 import io.github.hydos.lime.impl.vulkan.shaders.VKShaderManager;
 import io.github.hydos.lime.impl.vulkan.shaders.VKShaderUtils;
+import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -61,14 +62,14 @@ public class VKPipelineManager {
             VkViewport.Buffer viewport = VkViewport.callocStack(1, stack);
             viewport.x(0.0f);
             viewport.y(0.0f);
-            viewport.width(VKVariables.swapChainExtent.width());
-            viewport.height(VKVariables.swapChainExtent.height());
+            viewport.width(Variables.swapChainExtent.width());
+            viewport.height(Variables.swapChainExtent.height());
             viewport.minDepth(0.0f);
             viewport.maxDepth(1.0f);
 
             VkRect2D.Buffer scissor = VkRect2D.callocStack(1, stack);
             scissor.offset(VkOffset2D.callocStack(stack).set(0, 0));
-            scissor.extent(VKVariables.swapChainExtent);
+            scissor.extent(Variables.swapChainExtent);
 
             VkPipelineViewportStateCreateInfo viewportState = VkPipelineViewportStateCreateInfo.callocStack(stack);
             viewportState.sType(VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO);
@@ -93,7 +94,7 @@ public class VKPipelineManager {
             multisampling.sType(VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO);
             multisampling.sampleShadingEnable(true);
             multisampling.minSampleShading(0.2f); // Enable sample shading in the pipeline
-            multisampling.rasterizationSamples(VKVariables.msaaSamples); // Min fraction for sample shading; closer to one is smoother
+            multisampling.rasterizationSamples(Variables.msaaSamples); // Min fraction for sample shading; closer to one is smoother
 
             VkPipelineDepthStencilStateCreateInfo depthStencil = VkPipelineDepthStencilStateCreateInfo.callocStack(stack);
             depthStencil.sType(VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO);
@@ -122,15 +123,15 @@ public class VKPipelineManager {
 
             VkPipelineLayoutCreateInfo pipelineLayoutInfo = VkPipelineLayoutCreateInfo.callocStack(stack);
             pipelineLayoutInfo.sType(VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO);
-            pipelineLayoutInfo.pSetLayouts(stack.longs(VKVariables.descriptorSetLayout));
+            pipelineLayoutInfo.pSetLayouts(stack.longs(DescriptorManager.descriptorSetLayout));
 
             LongBuffer pPipelineLayout = stack.longs(VK_NULL_HANDLE);
 
-            if (vkCreatePipelineLayout(VKVariables.device, pipelineLayoutInfo, null, pPipelineLayout) != VK_SUCCESS) {
+            if (vkCreatePipelineLayout(Variables.device, pipelineLayoutInfo, null, pPipelineLayout) != VK_SUCCESS) {
                 throw new RuntimeException("Failed to create pipeline layout");
             }
 
-            VKVariables.pipelineLayout = pPipelineLayout.get(0);
+            Variables.pipelineLayout = pPipelineLayout.get(0);
 
             VkGraphicsPipelineCreateInfo.Buffer pipelineInfo = VkGraphicsPipelineCreateInfo.callocStack(1, stack);
             pipelineInfo.sType(VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO);
@@ -142,24 +143,24 @@ public class VKPipelineManager {
             pipelineInfo.pMultisampleState(multisampling);
             pipelineInfo.pDepthStencilState(depthStencil);
             pipelineInfo.pColorBlendState(colorBlending);
-            pipelineInfo.layout(VKVariables.pipelineLayout);
-            pipelineInfo.renderPass(VKVariables.renderPass);
+            pipelineInfo.layout(Variables.pipelineLayout);
+            pipelineInfo.renderPass(Variables.renderPass);
             pipelineInfo.subpass(0);
             pipelineInfo.basePipelineHandle(VK_NULL_HANDLE);
             pipelineInfo.basePipelineIndex(-1);
 
             LongBuffer pGraphicsPipeline = stack.mallocLong(1);
 
-            if (vkCreateGraphicsPipelines(VKVariables.device, VK_NULL_HANDLE, pipelineInfo, null, pGraphicsPipeline) != VK_SUCCESS) {
+            if (vkCreateGraphicsPipelines(Variables.device, VK_NULL_HANDLE, pipelineInfo, null, pGraphicsPipeline) != VK_SUCCESS) {
                 throw new RuntimeException("Failed to create graphics pipeline");
             }
 
-            VKVariables.graphicsPipeline = pGraphicsPipeline.get(0);
+            Variables.graphicsPipeline = pGraphicsPipeline.get(0);
 
             // Cleanup
 
-            vkDestroyShaderModule(VKVariables.device, vertShaderModule, null);
-            vkDestroyShaderModule(VKVariables.device, fragShaderModule, null);
+            vkDestroyShaderModule(Variables.device, vertShaderModule, null);
+            vkDestroyShaderModule(Variables.device, fragShaderModule, null);
 
             vertShaderSPIRV.free();
             fragShaderSPIRV.free();

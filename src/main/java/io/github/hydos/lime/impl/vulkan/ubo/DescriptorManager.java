@@ -1,0 +1,143 @@
+package io.github.hydos.lime.impl.vulkan.ubo;
+
+import io.github.hydos.example.VulkanExample;
+import io.github.hydos.lime.impl.vulkan.Variables;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.*;
+
+import java.nio.LongBuffer;
+import java.util.ArrayList;
+
+import static org.lwjgl.system.MemoryStack.stackPush;
+import static org.lwjgl.vulkan.VK10.*;
+
+public class DescriptorManager {
+
+    public static long descriptorPool;
+    public static long descriptorSetLayout;
+
+
+    public static void createDescriptorSets() {
+        try (MemoryStack stack = stackPush()) {
+            LongBuffer layouts = stack.mallocLong(Variables.swapChainImages.size());
+            for (int i = 0; i < layouts.capacity(); i++) {
+                layouts.put(i, descriptorSetLayout);
+            }
+
+            VkDescriptorSetAllocateInfo allocInfo = VkDescriptorSetAllocateInfo.callocStack(stack);
+            allocInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO);
+            allocInfo.descriptorPool(descriptorPool);
+            allocInfo.pSetLayouts(layouts);
+
+            LongBuffer pDescriptorSets = stack.mallocLong(Variables.swapChainImages.size());
+
+            if (vkAllocateDescriptorSets(Variables.device, allocInfo, pDescriptorSets) != VK_SUCCESS) {
+                throw new RuntimeException("Failed to allocate descriptor sets");
+            }
+
+            Variables.descriptorSets = new ArrayList<>(pDescriptorSets.capacity());
+
+            VkDescriptorBufferInfo.Buffer bufferInfo = VkDescriptorBufferInfo.callocStack(1, stack);
+            bufferInfo.offset(0);
+            bufferInfo.range(VulkanExample.Ubo.SIZEOF);
+
+            VkDescriptorImageInfo.Buffer imageInfo = VkDescriptorImageInfo.callocStack(1, stack);
+            imageInfo.imageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            imageInfo.imageView(Variables.textureImageView);
+            imageInfo.sampler(Variables.textureSampler);
+
+            VkWriteDescriptorSet.Buffer descriptorWrites = VkWriteDescriptorSet.callocStack(2, stack);
+            VkWriteDescriptorSet uboDescriptorWrite = descriptorWrites.get(0);
+            uboDescriptorWrite.sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET);
+            uboDescriptorWrite.dstBinding(0);
+            uboDescriptorWrite.dstArrayElement(0);
+            uboDescriptorWrite.descriptorType(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+            uboDescriptorWrite.descriptorCount(1);
+            uboDescriptorWrite.pBufferInfo(bufferInfo);
+
+            VkWriteDescriptorSet samplerDescriptorWrite = descriptorWrites.get(1);
+            samplerDescriptorWrite.sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET);
+            samplerDescriptorWrite.dstBinding(1);
+            samplerDescriptorWrite.dstArrayElement(0);
+            samplerDescriptorWrite.descriptorType(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+            samplerDescriptorWrite.descriptorCount(1);
+            samplerDescriptorWrite.pImageInfo(imageInfo);
+
+            for (int i = 0; i < pDescriptorSets.capacity(); i++) {
+
+                long descriptorSet = pDescriptorSets.get(i);
+
+                bufferInfo.buffer(Variables.uniformBuffers.get(i));
+
+                uboDescriptorWrite.dstSet(descriptorSet);
+                samplerDescriptorWrite.dstSet(descriptorSet);
+
+                vkUpdateDescriptorSets(Variables.device, descriptorWrites, null);
+
+                Variables.descriptorSets.add(descriptorSet);
+            }
+        }
+    }
+
+
+    public static void createUBODescriptorSetLayout() {
+
+        try (MemoryStack stack = stackPush()) {
+
+            VkDescriptorSetLayoutBinding.Buffer bindings = VkDescriptorSetLayoutBinding.callocStack(2, stack); //create binding buffer on stack
+
+            VkDescriptorSetLayoutBinding uboLayoutBinding = bindings.get(0);
+            uboLayoutBinding.binding(0); //set the binding number
+            uboLayoutBinding.descriptorCount(1);
+            uboLayoutBinding.descriptorType(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+            uboLayoutBinding.pImmutableSamplers(null);
+            uboLayoutBinding.stageFlags(VK_SHADER_STAGE_VERTEX_BIT);
+
+            VkDescriptorSetLayoutBinding samplerLayoutBinding = bindings.get(1);
+            samplerLayoutBinding.binding(1);
+            samplerLayoutBinding.descriptorCount(1);
+            samplerLayoutBinding.descriptorType(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+            samplerLayoutBinding.pImmutableSamplers(null);
+            samplerLayoutBinding.stageFlags(VK_SHADER_STAGE_FRAGMENT_BIT);
+
+            VkDescriptorSetLayoutCreateInfo layoutInfo = VkDescriptorSetLayoutCreateInfo.callocStack(stack);
+            layoutInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO);
+            layoutInfo.pBindings(bindings);
+
+            LongBuffer pDescriptorSetLayout = stack.mallocLong(1);
+
+            if (vkCreateDescriptorSetLayout(Variables.device, layoutInfo, null, pDescriptorSetLayout) != VK_SUCCESS) {
+                throw new RuntimeException("Failed to create descriptor set layout");
+            }
+            descriptorSetLayout = pDescriptorSetLayout.get(0);
+        }
+    }
+
+    public static void createDescriptorPool() {
+        try (MemoryStack stack = stackPush()) {
+
+            VkDescriptorPoolSize.Buffer poolSizes = VkDescriptorPoolSize.callocStack(2, stack);
+
+            VkDescriptorPoolSize uniformBufferPoolSize = poolSizes.get(0);
+            uniformBufferPoolSize.type(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+            uniformBufferPoolSize.descriptorCount(Variables.swapChainImages.size());
+
+            VkDescriptorPoolSize textureSamplerPoolSize = poolSizes.get(1);
+            textureSamplerPoolSize.type(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+            textureSamplerPoolSize.descriptorCount(Variables.swapChainImages.size());
+
+            VkDescriptorPoolCreateInfo poolInfo = VkDescriptorPoolCreateInfo.callocStack(stack);
+            poolInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO);
+            poolInfo.pPoolSizes(poolSizes);
+            poolInfo.maxSets(Variables.swapChainImages.size() + 10);//TODO: somehow unhardcode this
+
+            LongBuffer pDescriptorPool = stack.mallocLong(1);
+
+            if (vkCreateDescriptorPool(Variables.device, poolInfo, null, pDescriptorPool) != VK_SUCCESS) {
+                throw new RuntimeException("Failed to create descriptor pool");
+            }
+
+            descriptorPool = pDescriptorPool.get(0);
+        }
+    }
+}

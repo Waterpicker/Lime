@@ -1,8 +1,11 @@
 package io.github.hydos.lime.impl.vulkan.render;
 
-import io.github.hydos.lime.impl.vulkan.VKVariables;
-import io.github.hydos.lime.impl.vulkan.utils.VKBufferUtils;
-import io.github.hydos.lime.impl.vulkan.utils.VKUtils;
+import io.github.hydos.lime.core.math.LimeMath;
+import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
+import io.github.hydos.lime.impl.vulkan.lowlevel.VKMemoryUtils;
+import io.github.hydos.lime.impl.vulkan.util.ImageUtils;
+import io.github.hydos.lime.impl.vulkan.util.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkSamplerCreateInfo;
@@ -34,7 +37,7 @@ public class VKTextureManager {
 
             long imageSize = pWidth.get(0) * pHeight.get(0) * 4; // pChannels.get(0);
 
-            VKVariables.mipLevels = (int) Math.floor(VKUtils.log2(Math.max(pWidth.get(0), pHeight.get(0)))) + 1;
+            Variables.mipLevels = (int) Math.floor(LimeMath.log2(Math.max(pWidth.get(0), pHeight.get(0)))) + 1;
 
             if (pixels == null) {
                 throw new RuntimeException("Failed to load texture image " + filename);
@@ -50,40 +53,40 @@ public class VKTextureManager {
 
 
             PointerBuffer data = stack.mallocPointer(1);
-            vkMapMemory(VKVariables.device, pStagingBufferMemory.get(0), 0, imageSize, 0, data);
+            vkMapMemory(Variables.device, pStagingBufferMemory.get(0), 0, imageSize, 0, data);
             {
-                VKUtils.memcpy(data.getByteBuffer(0, (int) imageSize), pixels, imageSize);
+                VKMemoryUtils.memcpy(data.getByteBuffer(0, (int) imageSize), pixels, imageSize);
             }
-            vkUnmapMemory(VKVariables.device, pStagingBufferMemory.get(0));
+            vkUnmapMemory(Variables.device, pStagingBufferMemory.get(0));
 
             stbi_image_free(pixels);
 
             LongBuffer pTextureImage = stack.mallocLong(1);
             LongBuffer pTextureImageMemory = stack.mallocLong(1);
-            VKUtils.createImage(pWidth.get(0), pHeight.get(0),
-                    VKVariables.mipLevels,
+            ImageUtils.createImage(pWidth.get(0), pHeight.get(0),
+                    Variables.mipLevels,
                     VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
                     VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                     pTextureImage,
                     pTextureImageMemory);
 
-            VKVariables.textureImage = pTextureImage.get(0);
-            VKVariables.textureImageMemory = pTextureImageMemory.get(0);
+            Variables.textureImage = pTextureImage.get(0);
+            Variables.textureImageMemory = pTextureImageMemory.get(0);
 
-            VKUtils.transitionImageLayout(VKVariables.textureImage,
+            Utils.transitionImageLayout(Variables.textureImage,
                     VK_FORMAT_R8G8B8A8_SRGB,
                     VK_IMAGE_LAYOUT_UNDEFINED,
                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    VKVariables.mipLevels);
+                    Variables.mipLevels);
 
-            VKUtils.copyBufferToImage(pStagingBuffer.get(0), VKVariables.textureImage, pWidth.get(0), pHeight.get(0));
+            Utils.copyBufferToImage(pStagingBuffer.get(0), Variables.textureImage, pWidth.get(0), pHeight.get(0));
 
             // Transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
-            VKUtils.generateMipmaps(VKVariables.textureImage, VK_FORMAT_R8G8B8A8_SRGB, pWidth.get(0), pHeight.get(0), VKVariables.mipLevels);
+            ImageUtils.generateMipmaps(Variables.textureImage, VK_FORMAT_R8G8B8A8_SRGB, pWidth.get(0), pHeight.get(0), Variables.mipLevels);
 
-            vkDestroyBuffer(VKVariables.device, pStagingBuffer.get(0), null);
-            vkFreeMemory(VKVariables.device, pStagingBufferMemory.get(0), null);
+            vkDestroyBuffer(Variables.device, pStagingBuffer.get(0), null);
+            vkFreeMemory(Variables.device, pStagingBufferMemory.get(0), null);
 
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -91,7 +94,7 @@ public class VKTextureManager {
     }
 
     public static void createTextureImageView() {
-        VKVariables.textureImageView = VKUtils.createImageView(VKVariables.textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VKVariables.mipLevels);
+        Variables.textureImageView = ImageUtils.createImageView(Variables.textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, Variables.mipLevels);
     }
 
     public static void createTextureSampler() {
@@ -113,16 +116,16 @@ public class VKTextureManager {
             samplerInfo.compareOp(VK_COMPARE_OP_ALWAYS);
             samplerInfo.mipmapMode(VK_SAMPLER_MIPMAP_MODE_LINEAR);
             samplerInfo.minLod(0); // Optional
-            samplerInfo.maxLod((float) VKVariables.mipLevels);
+            samplerInfo.maxLod((float) Variables.mipLevels);
             samplerInfo.mipLodBias(0); // Optional
 
             LongBuffer pTextureSampler = stack.mallocLong(1);
 
-            if (vkCreateSampler(VKVariables.device, samplerInfo, null, pTextureSampler) != VK_SUCCESS) {
+            if (vkCreateSampler(Variables.device, samplerInfo, null, pTextureSampler) != VK_SUCCESS) {
                 throw new RuntimeException("Failed to create texture sampler");
             }
 
-            VKVariables.textureSampler = pTextureSampler.get(0);
+            Variables.textureSampler = pTextureSampler.get(0);
         }
     }
 }

@@ -1,6 +1,6 @@
 package io.github.hydos.lime.impl.vulkan.render;
 
-import io.github.hydos.lime.impl.vulkan.VKVariables;
+import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 
@@ -18,11 +18,11 @@ public class VKBufferMesh {
     public long indexBufferMemory;
 
     public void cleanup() {
-        vkDestroyBuffer(VKVariables.device, indexBuffer, null);
-        vkFreeMemory(VKVariables.device, indexBufferMemory, null);
+        vkDestroyBuffer(Variables.device, indexBuffer, null);
+        vkFreeMemory(Variables.device, indexBufferMemory, null);
 
-        vkDestroyBuffer(VKVariables.device, vertexBuffer, null);
-        vkFreeMemory(VKVariables.device, vertexBufferMemory, null);
+        vkDestroyBuffer(Variables.device, vertexBuffer, null);
+        vkFreeMemory(Variables.device, vertexBufferMemory, null);
     }
 
 }

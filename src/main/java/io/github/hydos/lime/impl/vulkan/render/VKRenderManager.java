@@ -1,8 +1,8 @@
 package io.github.hydos.lime.impl.vulkan.render;
 
 import io.github.hydos.lime.core.render.Renderer;
-import io.github.hydos.lime.impl.vulkan.VKVariables;
-import io.github.hydos.lime.impl.vulkan.utils.VKUtils;
+import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.util.Utils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -25,7 +25,7 @@ public class VKRenderManager {
 
     public VKRenderManager() {
         instance = this;
-        renderers = new ArrayList<Renderer>();
+        renderers = new ArrayList<>();
     }
 
     public static VKRenderManager getInstance() {
@@ -46,8 +46,8 @@ public class VKRenderManager {
 
             // MSAA Image
             VkAttachmentDescription colorAttachment = attachments.get(0);
-            colorAttachment.format(VKVariables.swapChainImageFormat);
-            colorAttachment.samples(VKVariables.msaaSamples);
+            colorAttachment.format(Variables.swapChainImageFormat);
+            colorAttachment.samples(Variables.msaaSamples);
             colorAttachment.loadOp(VK_ATTACHMENT_LOAD_OP_CLEAR);
             colorAttachment.storeOp(VK_ATTACHMENT_STORE_OP_STORE);
             colorAttachment.stencilLoadOp(VK_ATTACHMENT_LOAD_OP_DONT_CARE);
@@ -61,7 +61,7 @@ public class VKRenderManager {
 
             // Present Image
             VkAttachmentDescription colorAttachmentResolve = attachments.get(2);
-            colorAttachmentResolve.format(VKVariables.swapChainImageFormat);
+            colorAttachmentResolve.format(Variables.swapChainImageFormat);
             colorAttachmentResolve.samples(VK_SAMPLE_COUNT_1_BIT);
             colorAttachmentResolve.loadOp(VK_ATTACHMENT_LOAD_OP_DONT_CARE);
             colorAttachmentResolve.storeOp(VK_ATTACHMENT_STORE_OP_STORE);
@@ -78,8 +78,8 @@ public class VKRenderManager {
             // Depth-Stencil attachments
 
             VkAttachmentDescription depthAttachment = attachments.get(1);
-            depthAttachment.format(VKUtils.findDepthFormat());
-            depthAttachment.samples(VKVariables.msaaSamples);
+            depthAttachment.format(Utils.findDepthFormat());
+            depthAttachment.samples(Variables.msaaSamples);
             depthAttachment.loadOp(VK_ATTACHMENT_LOAD_OP_CLEAR);
             depthAttachment.storeOp(VK_ATTACHMENT_STORE_OP_DONT_CARE);
             depthAttachment.stencilLoadOp(VK_ATTACHMENT_LOAD_OP_DONT_CARE);
@@ -114,17 +114,17 @@ public class VKRenderManager {
 
             LongBuffer pRenderPass = stack.mallocLong(1);
 
-            if (vkCreateRenderPass(VKVariables.device, renderPassInfo, null, pRenderPass) != VK_SUCCESS) {
+            if (vkCreateRenderPass(Variables.device, renderPassInfo, null, pRenderPass) != VK_SUCCESS) {
                 throw new RuntimeException("Failed to create render pass");
             }
 
-            VKVariables.renderPass = pRenderPass.get(0);
+            Variables.renderPass = pRenderPass.get(0);
         }
     }
 
     public void addRenderer(Renderer renderer) {
         if (renderers == null || renderers.size() == 0) {
-            renderers = new ArrayList<Renderer>();
+            renderers = new ArrayList<>();
             renderers.add(renderer);
         } else {
             for (int i = 0; i < renderers.size(); i++) {

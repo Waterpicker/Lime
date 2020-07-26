@@ -1,4 +1,4 @@
-package io.github.hydos.lime.impl.vulkan.utils;
+package io.github.hydos.lime.impl.vulkan.lowlevel;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;

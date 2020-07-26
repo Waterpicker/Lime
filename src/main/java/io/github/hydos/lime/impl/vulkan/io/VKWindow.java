@@ -1,7 +1,7 @@
 package io.github.hydos.lime.impl.vulkan.io;
 
 import io.github.hydos.lime.core.io.Window;
-import io.github.hydos.lime.impl.vulkan.VKVariables;
+import io.github.hydos.lime.impl.vulkan.Variables;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
 
@@ -17,11 +17,11 @@ public class VKWindow {
 
             LongBuffer pSurface = stack.longs(VK_NULL_HANDLE);
 
-            if (GLFWVulkan.glfwCreateWindowSurface(VKVariables.instance, Window.getWindow(), null, pSurface) != VK_SUCCESS) {
+            if (GLFWVulkan.glfwCreateWindowSurface(Variables.instance, Window.getWindow(), null, pSurface) != VK_SUCCESS) {
                 throw new RuntimeException("Failed to create window surface");
             }
 
-            VKVariables.surface = pSurface.get(0);
+            Variables.surface = pSurface.get(0);
         }
     }
 

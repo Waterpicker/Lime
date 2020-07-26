@@ -1,4 +1,4 @@
-package io.github.hydos.lime.impl.vulkan.utils;
+package io.github.hydos.lime.impl.vulkan.lowlevel;
 
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 

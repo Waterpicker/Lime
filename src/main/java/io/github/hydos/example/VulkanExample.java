@@ -1,17 +1,18 @@
 package io.github.hydos.example;
 
 import io.github.hydos.lime.core.io.Window;
-import io.github.hydos.lime.impl.vulkan.VKRegister;
-import io.github.hydos.lime.impl.vulkan.VKVariables;
+import io.github.hydos.lime.impl.vulkan.VulkanReg;
+import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.io.VKWindow;
 import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
 import io.github.hydos.lime.impl.vulkan.render.Frame;
 import io.github.hydos.lime.impl.vulkan.render.VKTextureManager;
-import io.github.hydos.lime.impl.vulkan.swapchain.VKSwapchainManager;
-import io.github.hydos.lime.impl.vulkan.utils.VKDeviceManager;
-import io.github.hydos.lime.impl.vulkan.utils.VKUtils;
+import io.github.hydos.lime.impl.vulkan.swapchain.SwapchainManager;
+import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
+import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
+import io.github.hydos.lime.impl.vulkan.util.Utils;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.vulkan.KHRSwapchain;
@@ -50,7 +51,6 @@ public class VulkanExample {
         initVulkan();
         mainLoop();
         VulkanManager.getInstance().cleanup();
-        VKUtils.cleanup();
     }
 
     private void loadModels() {
@@ -74,24 +74,24 @@ public class VulkanExample {
     }
 
     private void framebufferResizeCallback(long window, int width, int height) {
-        VKVariables.framebufferResize = true;
+        Variables.framebufferResize = true;
     }
 
     private void initVulkan() {
-        VKRegister.createInstance();
+        VulkanReg.createInstance();
         VKWindow.createSurface();
         VulkanManager.init();
         VulkanManager.getInstance().createRenderers();
-        VKDeviceManager.pickPhysicalDevice();
-        VKDeviceManager.createLogicalDevice();
-        VKUtils.createCommandPool();
+        DeviceManager.pickPhysicalDevice();
+        DeviceManager.createLogicalDevice();
+        Utils.createCommandPool();
         VKTextureManager.createTextureImage();
         VKTextureManager.createTextureImageView();
         VKTextureManager.createTextureSampler();
-        VKUtils.createUBODescriptorSetLayout();
+        DescriptorManager.createUBODescriptorSetLayout();
         loadModels();
-        VKSwapchainManager.createSwapChainObjects(VulkanManager.getInstance().entityRenderer);
-        VKUtils.createSyncObjects();
+        SwapchainManager.createSwapChainObjects();
+        Utils.createSyncObjects();
     }
 
     private void mainLoop() {
@@ -101,7 +101,7 @@ public class VulkanExample {
         }
 
         // Wait for the device to complete all operations before release resources
-        vkDeviceWaitIdle(VKVariables.device);
+        vkDeviceWaitIdle(Variables.device);
     }
 
     private void doStuff() {

@@ -1,8 +1,8 @@
 package io.github.hydos.lime.impl.vulkan.render;
 
-import io.github.hydos.lime.impl.vulkan.VKVariables;
-import io.github.hydos.lime.impl.vulkan.swapchain.VKSwapchainManager;
-import io.github.hydos.lime.impl.vulkan.utils.VKUtils;
+import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.swapchain.SwapchainManager;
+import io.github.hydos.lime.impl.vulkan.util.Utils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkSubmitInfo;
@@ -38,28 +38,28 @@ public class Frame {
     public static void drawFrame() {
         try (MemoryStack stack = stackPush()) {
 
-            Frame thisFrame = VKVariables.inFlightFrames.get(VKVariables.currentFrame);
+            Frame thisFrame = Variables.inFlightFrames.get(Variables.currentFrame);
 
-            vkWaitForFences(VKVariables.device, thisFrame.pFence(), true, UINT64_MAX);
+            vkWaitForFences(Variables.device, thisFrame.pFence(), true, UINT64_MAX);
 
             IntBuffer pImageIndex = stack.mallocInt(1);
 
-            int vkResult = vkAcquireNextImageKHR(VKVariables.device, VKVariables.swapChain, UINT64_MAX,
+            int vkResult = vkAcquireNextImageKHR(Variables.device, Variables.swapChain, UINT64_MAX,
                     thisFrame.imageAvailableSemaphore(), VK_NULL_HANDLE, pImageIndex);
 
             if (vkResult == VK_ERROR_OUT_OF_DATE_KHR) {
-                VKSwapchainManager.recreateSwapChain();
+                SwapchainManager.recreateSwapChain();
                 return;
             }
 
             final int imageIndex = pImageIndex.get(0);
-            VKVariables.currentImageIndex = imageIndex;
-            if (VKVariables.imagesInFlight.containsKey(imageIndex)) {
-                vkWaitForFences(VKVariables.device, VKVariables.imagesInFlight.get(imageIndex).fence(), true, UINT64_MAX);
-                VKUtils.updateUniformBuffer(VKVariables.currentImageIndex);
+            Variables.currentImageIndex = imageIndex;
+            if (Variables.imagesInFlight.containsKey(imageIndex)) {
+                vkWaitForFences(Variables.device, Variables.imagesInFlight.get(imageIndex).fence(), true, UINT64_MAX);
+                Utils.updateUniformBuffer(Variables.currentImageIndex);
             }
 
-            VKVariables.imagesInFlight.put(imageIndex, thisFrame);
+            Variables.imagesInFlight.put(imageIndex, thisFrame);
 
             VkSubmitInfo submitInfo = VkSubmitInfo.callocStack(stack);
             submitInfo.sType(VK_STRUCTURE_TYPE_SUBMIT_INFO);
@@ -70,13 +70,13 @@ public class Frame {
 
             submitInfo.pSignalSemaphores(thisFrame.pRenderFinishedSemaphore());
 
-            submitInfo.pCommandBuffers(stack.pointers(VKVariables.commandBuffers.get(imageIndex)));
+            submitInfo.pCommandBuffers(stack.pointers(Variables.commandBuffers.get(imageIndex)));
 
-            vkResetFences(VKVariables.device, thisFrame.pFence());
+            vkResetFences(Variables.device, thisFrame.pFence());
 
             //Draw objects because yes
-            if ((vkResult = vkQueueSubmit(VKVariables.graphicsQueue, submitInfo, thisFrame.fence())) != VK_SUCCESS) {
-                vkResetFences(VKVariables.device, thisFrame.pFence());
+            if ((vkResult = vkQueueSubmit(Variables.graphicsQueue, submitInfo, thisFrame.fence())) != VK_SUCCESS) {
+                vkResetFences(Variables.device, thisFrame.pFence());
                 throw new RuntimeException("Failed to submit draw command buffer: " + vkResult);
             }
 
@@ -86,20 +86,20 @@ public class Frame {
             presentInfo.pWaitSemaphores(thisFrame.pRenderFinishedSemaphore());
 
             presentInfo.swapchainCount(1);
-            presentInfo.pSwapchains(stack.longs(VKVariables.swapChain));
+            presentInfo.pSwapchains(stack.longs(Variables.swapChain));
 
             presentInfo.pImageIndices(pImageIndex);
 
-            vkResult = vkQueuePresentKHR(VKVariables.presentQueue, presentInfo);
+            vkResult = vkQueuePresentKHR(Variables.presentQueue, presentInfo);
 
-            if (vkResult == VK_ERROR_OUT_OF_DATE_KHR || vkResult == VK_SUBOPTIMAL_KHR || VKVariables.framebufferResize) {
-                VKVariables.framebufferResize = false;
-                VKSwapchainManager.recreateSwapChain();
+            if (vkResult == VK_ERROR_OUT_OF_DATE_KHR || vkResult == VK_SUBOPTIMAL_KHR || Variables.framebufferResize) {
+                Variables.framebufferResize = false;
+                SwapchainManager.recreateSwapChain();
             } else if (vkResult != VK_SUCCESS) {
                 throw new RuntimeException("Failed to present swap chain image");
             }
 
-            VKVariables.currentFrame = (VKVariables.currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+            Variables.currentFrame = (Variables.currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
         }
     }
 

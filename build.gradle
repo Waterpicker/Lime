@@ -2,6 +2,7 @@ import org.gradle.internal.os.OperatingSystem
 
 plugins {
     id 'java'
+    id "com.github.johnrengelman.shadow" version "6.0.0"
 }
 
 project.ext.lwjglVersion = "3.2.3"

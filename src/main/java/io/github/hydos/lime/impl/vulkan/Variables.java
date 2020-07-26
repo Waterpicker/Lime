@@ -2,20 +2,24 @@ package io.github.hydos.lime.impl.vulkan;
 
 import io.github.hydos.lime.impl.vulkan.render.Frame;
 import io.github.hydos.lime.impl.vulkan.render.VKRenderManager;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.vulkan.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.lwjgl.vulkan.VK10.VK_SAMPLE_COUNT_1_BIT;
+import static org.lwjgl.glfw.GLFWVulkan.glfwGetRequiredInstanceExtensions;
+import static org.lwjgl.vulkan.VK10.*;
 
 /**
- * the place where Vulkan variables are stored
+ * the place where Vulkan variables and constants are stored
  *
  * @author hydos
  */
-public class VKVariables {
+public class Variables {
+
+    public static final int UINT32_MAX = 0xFFFFFFFF;
 
     public static VkInstance instance;
     public static long surface;
@@ -36,9 +40,6 @@ public class VKVariables {
     public static List<Long> swapChainFramebuffers;
 
     public static long renderPass;
-
-    public static long descriptorPool;
-    public static long descriptorSetLayout;
 
     public static long pipelineLayout;
 
@@ -73,4 +74,12 @@ public class VKVariables {
     public static ArrayList<Long> uniformBuffers;
     public static ArrayList<Long> uniformBuffersMemory;
     public static ArrayList<Long> descriptorSets;
+
+    public static boolean hasStencilComponent(int format) {
+        return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+    }
+
+    public static PointerBuffer getRequiredExtensions() {
+        return glfwGetRequiredInstanceExtensions();
+    }
 }

@@ -1,6 +1,6 @@
 package io.github.hydos.lime.impl.vulkan;
 
-import io.github.hydos.lime.impl.vulkan.utils.VKUtils;
+import io.github.hydos.lime.impl.vulkan.util.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkApplicationInfo;
@@ -10,7 +10,7 @@ import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class VKRegister {
+public class VulkanReg {
 
     public static void createInstance() {
 
@@ -32,7 +32,7 @@ public class VKRegister {
             createInfo.sType(VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO);
             createInfo.pApplicationInfo(appInfo);
             // enabledExtensionCount is implicitly set when you call ppEnabledExtensionNames
-            createInfo.ppEnabledExtensionNames(VKUtils.getRequiredExtensions());
+            createInfo.ppEnabledExtensionNames(Variables.getRequiredExtensions());
 
             // We need to retrieve the pointer of the created instance
             PointerBuffer instancePtr = stack.mallocPointer(1);
@@ -41,7 +41,7 @@ public class VKRegister {
                 throw new RuntimeException("Failed to create instance");
             }
 
-            VKVariables.instance = new VkInstance(instancePtr.get(0), createInfo);
+            Variables.instance = new VkInstance(instancePtr.get(0), createInfo);
         }
     }
 
