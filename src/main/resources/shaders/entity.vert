@@ -3,7 +3,7 @@
 
 layout(push_constant) uniform PushConstant {
     int[] constants;
-    //1 = entity.id which is the model index in the model list
+    //0 = entity.id which is the model index in the model list
 } pc;
 
 layout(binding = 0) uniform UniformBufferObject {

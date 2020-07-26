@@ -24,7 +24,6 @@ public class EntityRenderer extends Renderer {
     public List<VulkanRenderObject> entities;//TODO: batch rendering
 
     public EntityRenderer() {
-        priority = 1;
         entities = new ArrayList<>();
     }
 
@@ -51,8 +50,8 @@ public class EntityRenderer extends Renderer {
             processedMesh.indices[i] = mesh.indices.get(i);
         }
 
-        processedMesh = VKUtils.createVertexBuffer(processedMesh);
-        processedMesh = VKUtils.createIndexBuffer(processedMesh);
+        VKUtils.createVertexBuffer(processedMesh);
+        VKUtils.createIndexBuffer(processedMesh);
         entity.setModel(processedMesh);
         entities.add(entity);
     }

@@ -17,8 +17,8 @@ public class VulkanRenderObject extends RenderObject {
     public final int id;
 
     public VulkanRenderObject(VKModelLoader.VKMesh rawModel, Vector3f position, float rotX, float rotY, float rotZ, Vector3f scale) {
-        id = lastModelIdRegistered;
-        lastModelIdRegistered++;
+        id = VulkanRenderObject.lastModelIdRegistered;
+        VulkanRenderObject.lastModelIdRegistered++;
         this.rawModel = rawModel;
         this.position = position;
         this.rotX = rotX;

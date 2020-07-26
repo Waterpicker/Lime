@@ -2,16 +2,18 @@ package io.github.hydos.lime.impl.vulkan.utils;
 
 import io.github.hydos.example.VulkanExample;
 import io.github.hydos.lime.core.io.Window;
+import io.github.hydos.lime.core.math.Maths;
 import io.github.hydos.lime.impl.vulkan.VKVariables;
+import io.github.hydos.lime.impl.vulkan.VulkanManager;
+import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 import io.github.hydos.lime.impl.vulkan.render.Frame;
 import io.github.hydos.lime.impl.vulkan.render.VKBufferMesh;
 import io.github.hydos.lime.impl.vulkan.swapchain.VKSwapchainManager;
-import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Pointer;
 import org.lwjgl.vulkan.*;
@@ -26,7 +28,6 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toSet;
 import static org.lwjgl.glfw.GLFW.glfwGetFramebufferSize;
-import static org.lwjgl.glfw.GLFW.glfwGetTime;
 import static org.lwjgl.glfw.GLFWVulkan.glfwGetRequiredInstanceExtensions;
 import static org.lwjgl.system.MemoryStack.stackGet;
 import static org.lwjgl.system.MemoryStack.stackPush;
@@ -714,20 +715,20 @@ public class VKUtils {
     }
 
     public static void createUniformBuffers() {
-            try (MemoryStack stack = stackPush()) {
-                VKVariables.uniformBuffers = new ArrayList<>(VKVariables.swapChainImages.size());
-                VKVariables.uniformBuffersMemory = new ArrayList<>(VKVariables.swapChainImages.size());
+        try (MemoryStack stack = stackPush()) {
+            VKVariables.uniformBuffers = new ArrayList<>(VKVariables.swapChainImages.size());
+            VKVariables.uniformBuffersMemory = new ArrayList<>(VKVariables.swapChainImages.size());
 
-                LongBuffer pBuffer = stack.mallocLong(1);
-                LongBuffer pBufferMemory = stack.mallocLong(1);
+            LongBuffer pBuffer = stack.mallocLong(1);
+            LongBuffer pBufferMemory = stack.mallocLong(1);
 
-                for (int i = 0; i < VKVariables.swapChainImages.size(); i++) {
-                    VKBufferUtils.createBuffer(VulkanExample.Ubo.SIZEOF, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, pBuffer, pBufferMemory);
+            for (int i = 0; i < VKVariables.swapChainImages.size(); i++) {
+                VKBufferUtils.createBuffer(VulkanExample.Ubo.SIZEOF, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, pBuffer, pBufferMemory);
 
-                    VKVariables.uniformBuffers.add(pBuffer.get(0));
-                    VKVariables.uniformBuffersMemory.add(pBufferMemory.get(0));
-                }
+                VKVariables.uniformBuffers.add(pBuffer.get(0));
+                VKVariables.uniformBuffersMemory.add(pBufferMemory.get(0));
             }
+        }
     }
 
 
@@ -785,17 +786,19 @@ public class VKUtils {
 
     static final int mat4Size = 16 * Float.BYTES;
     static final int modelArraySize = mat4Size * 10; //FIXME: also hardcoded
-    
+
     private static void putUBOInMemory(ByteBuffer buffer, VulkanExample.Ubo ubo) {
         putArrayInUboMemory(buffer, ubo.model);
         ubo.view.get(AlignmentUtils.alignas(modelArraySize, AlignmentUtils.alignof(ubo.view)), buffer);
         ubo.proj.get(AlignmentUtils.alignas(modelArraySize + mat4Size, AlignmentUtils.alignof(ubo.view)), buffer);
     }
-    
-    private static void putArrayInUboMemory(ByteBuffer buffer, Matrix4f[] models){
+
+    private static void putArrayInUboMemory(ByteBuffer buffer, Matrix4f[] models) {
         int i = 0;
-        for(Matrix4f mat : models){
-            mat.get(mat4Size*i, buffer);
+        for (Matrix4f mat : models) {
+            if (mat == null)
+                mat = new Matrix4f();
+            mat.get(mat4Size * i, buffer);
             i++;
         }
     }
@@ -853,17 +856,19 @@ public class VKUtils {
 
             VulkanExample.Ubo ubo = new VulkanExample.Ubo();
 
-            if (Window.isKeyDown(GLFW.GLFW_KEY_W))
-                ubo.model[0].rotate((float) (glfwGetTime() * Math.toRadians(90)), 0.0f, 0.0f, 1.0f);
-            ubo.view.lookAt(2.0f, 2.0f, 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-            ubo.proj.perspective((float) Math.toRadians(45),
-                    (float) VKVariables.swapChainExtent.width() / (float) VKVariables.swapChainExtent.height(), 0.1f, 10.0f);
+            for (VulkanRenderObject object : VulkanManager.getInstance().entityRenderer.entities) {
+                ubo.model[object.id] = Maths.createTransformationMatrix(object.getPosition(), object.getRotX(), object.getRotY(), object.getRotZ(), object.getScale());
+            }
+
+            //Constant stuff generally goes here. later on view matrix will use the Math class one.
+            ubo.view = Maths.calcView(new Vector3f(2,0,0), new Vector3f(0, 0, 0));
+            ubo.proj.perspective((float) Math.toRadians(45), (float) VKVariables.swapChainExtent.width() / (float) VKVariables.swapChainExtent.height(), 0.1f, 10.0f);
             ubo.proj.m11(ubo.proj.m11() * -1);
 
             PointerBuffer data = stack.mallocPointer(1);
-            vkMapMemory(VKVariables.device, VKVariables.uniformBuffersMemory.get(currentImage), 0, VulkanExample.Ubo.SIZEOF* VulkanManager.getInstance().entityRenderer.entities.size(), 0, data);
+            vkMapMemory(VKVariables.device, VKVariables.uniformBuffersMemory.get(currentImage), 0, VulkanExample.Ubo.SIZEOF * VulkanManager.getInstance().entityRenderer.entities.size(), 0, data);
             {
-                putUBOInMemory(data.getByteBuffer(0, VulkanExample.Ubo.SIZEOF* VulkanManager.getInstance().entityRenderer.entities.size()), ubo);
+                putUBOInMemory(data.getByteBuffer(0, VulkanExample.Ubo.SIZEOF * VulkanManager.getInstance().entityRenderer.entities.size()), ubo);
             }
             vkUnmapMemory(VKVariables.device, VKVariables.uniformBuffersMemory.get(currentImage));
         }
@@ -1012,9 +1017,6 @@ public class VKUtils {
     }
 
     public static PointerBuffer getRequiredExtensions() {
-
-        PointerBuffer glfwExtensions = glfwGetRequiredInstanceExtensions();
-
-        return glfwExtensions;
+        return glfwGetRequiredInstanceExtensions();
     }
 }

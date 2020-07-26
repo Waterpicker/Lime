@@ -36,6 +36,9 @@ public class VulkanExample {
 
     public static final Set<String> DEVICE_EXTENSIONS = Stream.of(KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME).collect(Collectors.toSet());
 
+    VulkanRenderObject chalet;
+    VulkanRenderObject dragon;
+
     public static void main(String[] args) {
         VulkanExample app = new VulkanExample();
 
@@ -58,8 +61,8 @@ public class VulkanExample {
         VKModelLoader.VKMesh chaletModel = VKModelLoader.loadModel(chaletModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
         VKModelLoader.VKMesh dragonModel = VKModelLoader.loadModel(dragonModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
 
-        VulkanRenderObject chalet = new VulkanRenderObject(chaletModel, new Vector3f(), 1, 1, 1, new Vector3f());
-        VulkanRenderObject dragon = new VulkanRenderObject(dragonModel, new Vector3f(), 1, 4, 7, new Vector3f());
+        chalet = new VulkanRenderObject(chaletModel, new Vector3f(0,0,0), 0, 0, 0, new Vector3f(1f, 1f, 1f));
+        dragon = new VulkanRenderObject(dragonModel, new Vector3f(0,0,0), 0, 0, 0, new Vector3f(0.5f, 0.5f, 0.5f));
 
         VulkanManager.getInstance().entityRenderer.processEntity(chalet);
         VulkanManager.getInstance().entityRenderer.processEntity(dragon);
@@ -95,6 +98,7 @@ public class VulkanExample {
 
         while (!Window.closed()) {
             if (Window.shouldRender()) {
+                chalet.increasePosition(0, 0.001f, 0);
                 Frame.drawFrame();
             }
             glfwPollEvents();
@@ -137,12 +141,6 @@ public class VulkanExample {
 
         public Ubo() {
             model = new Matrix4f[10]; //TMP: 10 object cap? FIXME
-
-            int i = 0;
-            for(Matrix4f m : model){
-                model[i] = new Matrix4f();
-                i++;
-            }
             view = new Matrix4f();
             proj = new Matrix4f();
         }

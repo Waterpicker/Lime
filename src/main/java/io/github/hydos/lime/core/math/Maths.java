@@ -1,6 +1,7 @@
 package io.github.hydos.lime.core.math;
 
 //import com.github.hydos.ginger.engine.common.cameras.Camera;
+
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -40,25 +41,29 @@ public class Maths {
     }
 
     public static Matrix4f createTransformationMatrix(Vector3f translation, float rx, float ry, float rz, Vector3f scale) {
-        matrix.zero();
-        matrix.identity();
-        matrix.translate(translation, matrix);
-        matrix.rotate((float) Math.toRadians(rx), XVEC, matrix);
-        matrix.rotate((float) Math.toRadians(ry), YVEC, matrix);
-        matrix.rotate((float) Math.toRadians(rz), ZVEC, matrix);
-        matrix.scale(scale, matrix);
-        return matrix;
+        Matrix4f mat4 = new Matrix4f();
+        mat4.zero();
+        mat4.identity();
+        mat4.translate(translation);
+        mat4.rotate((float) Math.toRadians(rx), XVEC);
+        mat4.rotate((float) Math.toRadians(ry), YVEC);
+        mat4.rotate((float) Math.toRadians(rz), ZVEC);
+        mat4.scale(scale);
+        return mat4;
     }
-//
-//    public static Matrix4f createViewMatrix(Camera camera) {
-//        Matrix4f viewMatrix = new Matrix4f();
-//        viewMatrix.identity();
-//        viewMatrix.rotate((float) Math.toRadians(camera.getPitch()), new Vector3f(1, 0, 0), viewMatrix);
-//        viewMatrix.rotate((float) Math.toRadians(camera.getYaw()), new Vector3f(0, 1, 0), viewMatrix);
-//        viewMatrix.rotate((float) Math.toRadians(camera.getRoll()), new Vector3f(0, 0, 1), viewMatrix);
-//        Vector3f cameraPos = camera.getPosition();
-//        Vector3f negativeCameraPos = new Vector3f(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-//        viewMatrix.translate(negativeCameraPos, viewMatrix);
-//        return viewMatrix;
-//    }
+
+    public static Matrix4f createViewMatrix(Vector3f cameraPos, Vector3f rotation) {
+        Matrix4f viewMatrix = new Matrix4f();
+        viewMatrix.identity();
+        viewMatrix.rotate((float) Math.toRadians(rotation.x), new Vector3f(1, 0, 0), viewMatrix);
+        viewMatrix.rotate((float) Math.toRadians(rotation.y), new Vector3f(0, 1, 0), viewMatrix);
+        viewMatrix.rotate((float) Math.toRadians(rotation.z), new Vector3f(0, 0, 1), viewMatrix);
+        Vector3f negativeCameraPos = new Vector3f(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        viewMatrix.translate(negativeCameraPos, viewMatrix);
+        return viewMatrix;
+    }
+
+    public static Matrix4f calcView(Vector3f pos, Vector3f lookAt) {
+        return new Matrix4f().lookAt(pos.x, pos.y, pos.z, lookAt.x, lookAt.y, lookAt.z, 0f, 1f, 0f);
+    }
 }
