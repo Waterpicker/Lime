@@ -38,8 +38,9 @@ public class DescriptorManager {
 
                 LongBuffer pDescriptorSets = stack.mallocLong(Variables.swapChainImages.size());
 
-                if (vkAllocateDescriptorSets(Variables.device, allocInfo, pDescriptorSets) != VK_SUCCESS) {
-                    throw new RuntimeException("Failed to allocate descriptor sets");
+                int err = vkAllocateDescriptorSets(Variables.device, allocInfo, pDescriptorSets);
+                if (err != VK_SUCCESS) {
+                    throw new RuntimeException("Failed to allocate descriptor sets " + err);
                 }
 
                 List<Long> descriptorSets = new ArrayList<>(pDescriptorSets.capacity());
@@ -139,7 +140,7 @@ public class DescriptorManager {
             VkDescriptorPoolCreateInfo poolInfo = VkDescriptorPoolCreateInfo.callocStack(stack);
             poolInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO);
             poolInfo.pPoolSizes(poolSizes);
-            poolInfo.maxSets(Variables.swapChainImages.size() + 10);//TODO: somehow unhardcode this
+            poolInfo.maxSets(Variables.swapChainImages.size() + 20);//TODO: somehow unhardcode this this number is responsable for running out of pool memory
 
             LongBuffer pDescriptorPool = stack.mallocLong(1);
 
