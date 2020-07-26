@@ -17,7 +17,17 @@ public class LimeMath {
     public static int clamp(int min, int max, int value) {
         return java.lang.Math.max(min, java.lang.Math.min(max, value));
     }
-
+//
+//    public static Matrix4f createViewMatrix(Vector3f cameraPos, Vector3f rotation) {
+//        Matrix4f viewMatrix = new Matrix4f();
+//        viewMatrix.identity();
+//        viewMatrix.rotate((float) Math.toRadians(rotation.x), new Vector3f(1, 0, 0), viewMatrix);
+//        viewMatrix.rotate((float) Math.toRadians(rotation.y), new Vector3f(0, 1, 0), viewMatrix);
+//        viewMatrix.rotate((float) Math.toRadians(rotation.z), new Vector3f(0, 0, 1), viewMatrix);
+//        Vector3f negativeCameraPos = new Vector3f(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+//        viewMatrix.translate(negativeCameraPos, viewMatrix);
+//        return viewMatrix;
+//    }
     public static Matrix4f calcView(Vector3f pos, Vector3f lookAt) {
         return new Matrix4f().lookAt(pos.x, pos.y, pos.z, lookAt.x, lookAt.y, lookAt.z, 0f, 1f, 0f);
     }

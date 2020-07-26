@@ -95,6 +95,7 @@ public class VulkanExample {
     }
 
     private void mainLoop() {
+        Window.lockMouse();
         while (!Window.closed()) {
             doStuff();
             PlayerController.onInput();
