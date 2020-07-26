@@ -108,11 +108,6 @@ public class Window {
         return (long) (GLFW.glfwGetTime() * 1000 / GLFW.glfwGetTimerFrequency());
     }
 
-    public static float getFloatTime() {
-        float f = (System.nanoTime() / 1000000000);
-        return f;
-    }
-
     public static double getMouseX() {
         DoubleBuffer buffer = BufferUtils.createDoubleBuffer(1);
         GLFW.glfwGetCursorPos(getWindow(), buffer, null);
@@ -132,8 +127,7 @@ public class Window {
     }
 
     public static double getTime() {
-        double f = (double) System.nanoTime() / (long) 1000000000;
-        return f;
+        return System.currentTimeMillis() / 1000D;
     }
 
     public static boolean isKeyDown(int keycode) {
