@@ -15,7 +15,6 @@ import io.github.hydos.lime.impl.vulkan.render.VKTextureManager;
 import io.github.hydos.lime.impl.vulkan.swapchain.SwapchainManager;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
 import io.github.hydos.lime.impl.vulkan.util.Utils;
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.vulkan.KHRSwapchain;
 import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
@@ -51,7 +50,7 @@ public class VulkanExample {
     public void run() {
         initWindow();
         initVulkan();
-        mainLoop();
+        runEngine();
         VulkanManager.getInstance().cleanup();
     }
 
@@ -94,18 +93,16 @@ public class VulkanExample {
         Utils.createSyncObjects();
     }
 
-    private void mainLoop() {
+    private void runEngine() {
         Window.lockMouse();
         while (!Window.closed()) {
-            doStuff();
+            loop();
             PlayerController.onInput();
         }
-
-        // Wait for the device to complete all operations before release resources
         vkDeviceWaitIdle(Variables.device);
     }
 
-    private void doStuff() {
+    private void loop() {
         if (Window.shouldRender()) {
             chalet.increaseRotation(0, 0, 5);
             Frame.drawFrame();
