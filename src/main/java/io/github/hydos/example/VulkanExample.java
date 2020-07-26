@@ -3,15 +3,15 @@ package io.github.hydos.example;
 import io.github.hydos.lime.core.io.Window;
 import io.github.hydos.lime.impl.vulkan.VKRegister;
 import io.github.hydos.lime.impl.vulkan.VKVariables;
+import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.io.VKWindow;
-import io.github.hydos.lime.impl.vulkan.render.VKTextureManager;
 import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
 import io.github.hydos.lime.impl.vulkan.render.Frame;
+import io.github.hydos.lime.impl.vulkan.render.VKTextureManager;
 import io.github.hydos.lime.impl.vulkan.swapchain.VKSwapchainManager;
 import io.github.hydos.lime.impl.vulkan.utils.VKDeviceManager;
 import io.github.hydos.lime.impl.vulkan.utils.VKUtils;
-import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.vulkan.KHRSwapchain;
@@ -61,15 +61,15 @@ public class VulkanExample {
         VKModelLoader.VKMesh chaletModel = VKModelLoader.loadModel(chaletModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
         VKModelLoader.VKMesh dragonModel = VKModelLoader.loadModel(dragonModelFile, aiProcess_FlipUVs | aiProcess_DropNormals);
 
-        chalet = new VulkanRenderObject(chaletModel, new Vector3f(0,0,0), 0, 0, 0, new Vector3f(1f, 1f, 1f));
-        dragon = new VulkanRenderObject(dragonModel, new Vector3f(0,0,0), 0, 0, 0, new Vector3f(0.5f, 0.5f, 0.5f));
+        chalet = new VulkanRenderObject(chaletModel, new Vector3f(0, 0, 0), -90, 0, 0, new Vector3f(1f, 1f, 1f));
+        dragon = new VulkanRenderObject(dragonModel, new Vector3f(0, -1, 0), 0, 0, 0, new Vector3f(0.3f, 0.3f, 0.3f));
 
         VulkanManager.getInstance().entityRenderer.processEntity(chalet);
         VulkanManager.getInstance().entityRenderer.processEntity(dragon);
     }
 
     private void initWindow() {
-        Window.create(1200, 800, "Vulkan Ginger2", 60);
+        Window.create(1200, 800, "Lime Render Engine", 60);
         glfwSetFramebufferSizeCallback(Window.getWindow(), this::framebufferResizeCallback);
     }
 
@@ -97,15 +97,21 @@ public class VulkanExample {
     private void mainLoop() {
 
         while (!Window.closed()) {
-            if (Window.shouldRender()) {
-                chalet.increasePosition(0, 0.001f, 0);
-                Frame.drawFrame();
-            }
-            glfwPollEvents();
+            doStuff();
         }
 
         // Wait for the device to complete all operations before release resources
         vkDeviceWaitIdle(VKVariables.device);
+    }
+
+    private void doStuff() {
+        if (Window.shouldRender()) {
+            dragon.increasePosition(0, 0f, 0.1f);
+            chalet.increaseRotation(0, 0, 5);
+            chalet.setPosition(new Vector3f(0, 0.001f, 0));
+            Frame.drawFrame();
+        }
+        glfwPollEvents();
     }
 
     public static class QueueFamilyIndices {
