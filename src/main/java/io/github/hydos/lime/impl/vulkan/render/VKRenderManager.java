@@ -1,6 +1,6 @@
 package io.github.hydos.lime.impl.vulkan.render;
 
-import io.github.hydos.citrus.render.Renderer;
+import io.github.hydos.lime.core.render.Renderer;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.util.ImageUtils;
 import org.lwjgl.system.MemoryStack;

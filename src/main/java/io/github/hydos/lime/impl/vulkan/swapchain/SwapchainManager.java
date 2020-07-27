@@ -1,7 +1,7 @@
 package io.github.hydos.lime.impl.vulkan.swapchain;
 
-import io.github.hydos.citrus.io.Window;
-import io.github.hydos.citrus.math.LimeMath;
+import io.github.hydos.lime.core.io.Window;
+import io.github.hydos.lime.core.math.CitrusMath;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
 import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
@@ -91,8 +91,8 @@ public class SwapchainManager {
         VkExtent2D minExtent = capabilities.minImageExtent();
         VkExtent2D maxExtent = capabilities.maxImageExtent();
 
-        actualExtent.width(LimeMath.clamp(minExtent.width(), maxExtent.width(), actualExtent.width()));
-        actualExtent.height(LimeMath.clamp(minExtent.height(), maxExtent.height(), actualExtent.height()));
+        actualExtent.width(CitrusMath.clamp(minExtent.width(), maxExtent.width(), actualExtent.width()));
+        actualExtent.height(CitrusMath.clamp(minExtent.height(), maxExtent.height(), actualExtent.height()));
 
         return actualExtent;
     }

@@ -1,6 +1,6 @@
 package io.github.hydos.lime.impl.vulkan.model;
 
-import io.github.hydos.citrus.io.Window;
+import io.github.hydos.lime.core.io.Window;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
 import org.lwjgl.PointerBuffer;

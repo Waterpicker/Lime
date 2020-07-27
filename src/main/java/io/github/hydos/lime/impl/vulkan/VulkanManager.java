@@ -1,6 +1,6 @@
 package io.github.hydos.lime.impl.vulkan;
 
-import io.github.hydos.citrus.io.Window;
+import io.github.hydos.lime.core.io.Window;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.render.VKBufferMesh;
 import io.github.hydos.lime.impl.vulkan.render.VKRenderManager;

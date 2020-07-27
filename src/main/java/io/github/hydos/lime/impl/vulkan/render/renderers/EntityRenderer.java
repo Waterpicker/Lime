@@ -1,6 +1,7 @@
 package io.github.hydos.lime.impl.vulkan.render.renderers;
 
-import io.github.hydos.citrus.render.Renderer;
+import io.github.hydos.lime.core.render.RenderObject;
+import io.github.hydos.lime.core.render.Renderer;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.elements.TexturedVulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
@@ -26,8 +27,9 @@ public class EntityRenderer extends Renderer {
         entities = new ArrayList<>();
     }
 
-    public void processEntity(TexturedVulkanRenderObject entity) {
-        VKModelLoader.VKMesh mesh = entity.getRawModel();
+    public void processEntity(RenderObject entity) {
+        TexturedVulkanRenderObject vulkanEntity = (TexturedVulkanRenderObject) entity;
+        VKModelLoader.VKMesh mesh = vulkanEntity.getRawModel();
         VKBufferMesh processedMesh = new VKBufferMesh();
         processedMesh.vkMesh = mesh;
         int vertexCount = mesh.positions.size();
@@ -51,8 +53,8 @@ public class EntityRenderer extends Renderer {
 
         VKBufferUtils.createVertexBuffer(processedMesh);
         VKBufferUtils.createIndexBuffer(processedMesh);
-        entity.setModel(processedMesh);
-        entities.add(entity);
+        vulkanEntity.setModel(processedMesh);
+        entities.add(vulkanEntity);
     }
 
     @Override

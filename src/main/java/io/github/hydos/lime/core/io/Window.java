@@ -1,4 +1,4 @@
-package io.github.hydos.citrus.io;
+package io.github.hydos.lime.core.io;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -9,7 +9,6 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWVulkan;
 
 import java.nio.DoubleBuffer;
-import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.GLFW_CLIENT_API;
 import static org.lwjgl.glfw.GLFW.GLFW_NO_API;

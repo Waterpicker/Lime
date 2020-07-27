@@ -1,5 +1,6 @@
 package io.github.hydos.lime.impl.vulkan.elements;
 
+import io.github.hydos.lime.core.core.ModelManager;
 import io.github.hydos.lime.impl.vulkan.texture.CompiledTexture;
 
 public class TexturedVulkanRenderObject extends VulkanRenderObject {
@@ -7,7 +8,14 @@ public class TexturedVulkanRenderObject extends VulkanRenderObject {
     public CompiledTexture texture;
 
     public TexturedVulkanRenderObject(VulkanRenderObject object) {
-        super(object.getRawModel(), object.position, object.rotX, object.rotY, object.rotZ, object.scale);
+        this.position = object.position;
+        this.rotX = object.rotX;
+        this.rotY = object.rotY;
+        this.rotZ = object.rotZ;
+        this.scale = object.scale;
+        this.model = object.model;
+        this.rawModel = object.rawModel;
+        this.id = object.id;
     }
 
     public TexturedVulkanRenderObject(VulkanRenderObject object, CompiledTexture compiledTexture) {

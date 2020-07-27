@@ -1,6 +1,6 @@
-package io.github.hydos.citrus;
+package io.github.hydos.lime.core.player;
 
-import io.github.hydos.citrus.io.Window;
+import io.github.hydos.lime.core.io.Window;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 

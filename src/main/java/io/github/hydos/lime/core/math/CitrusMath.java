@@ -1,10 +1,10 @@
-package io.github.hydos.citrus.math;
+package io.github.hydos.lime.core.math;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-public class LimeMath {
+public class CitrusMath {
 
     private static final Vector3f XVEC = new Vector3f(1, 0, 0);
     private static final Vector3f YVEC = new Vector3f(0, 1, 0);

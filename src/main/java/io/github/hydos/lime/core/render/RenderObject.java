@@ -1,4 +1,4 @@
-package io.github.hydos.citrus.render;
+package io.github.hydos.lime.core.render;
 
 import org.joml.Vector3f;
 
@@ -21,6 +21,8 @@ public abstract class RenderObject {
         this.position.z = z;
     }
 
+    public RenderObject() {
+    }
 
     public Vector3f getPosition() {
         return position;
