@@ -25,7 +25,6 @@ public class VKVertex {
     }
 
     public static VkVertexInputBindingDescription.Buffer getBindingDescription() {
-
         VkVertexInputBindingDescription.Buffer bindingDescription =
                 VkVertexInputBindingDescription.callocStack(1);
 
@@ -37,7 +36,6 @@ public class VKVertex {
     }
 
     public static VkVertexInputAttributeDescription.Buffer getAttributeDescriptions() {
-
         VkVertexInputAttributeDescription.Buffer attributeDescriptions =
                 VkVertexInputAttributeDescription.callocStack(3);
 
@@ -64,5 +62,4 @@ public class VKVertex {
 
         return attributeDescriptions.rewind();
     }
-
 }

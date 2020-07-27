@@ -26,11 +26,11 @@ public class VKShaderUtils {
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
     public static SPIRV compileShader(String filename, String source, ShaderType shaderKind) {
-
         long compiler = shaderc_compiler_initialize();
 
         if (compiler == NULL) {
@@ -85,5 +85,4 @@ public class VKShaderUtils {
             bytecode = null; // Help the GC
         }
     }
-
 }

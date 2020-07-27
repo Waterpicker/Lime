@@ -18,7 +18,6 @@ public class CommandBufferManager {
 
     public static void createCommandPool() {
         try (MemoryStack stack = stackPush()) {
-
             DeviceManager.QueueFamilyIndices queueFamilyIndices = DeviceManager.findQueueFamilies(Variables.physicalDevice);
 
             VkCommandPoolCreateInfo poolInfo = VkCommandPoolCreateInfo.callocStack(stack);
@@ -34,13 +33,11 @@ public class CommandBufferManager {
     }
 
     public static void createCommandBuffers() {
-
         final int commandBuffersCount = Variables.swapChainFramebuffers.size();
 
         Variables.commandBuffers = new ArrayList<>(commandBuffersCount);
 
         try (MemoryStack stack = stackPush()) {
-
             VkCommandBufferAllocateInfo allocInfo = VkCommandBufferAllocateInfo.callocStack(stack);
             allocInfo.sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO);
             allocInfo.commandPool(Variables.commandPool);
@@ -92,9 +89,7 @@ public class CommandBufferManager {
     }
 
     public static VkCommandBuffer beginSingleTimeCommands() {
-
         try (MemoryStack stack = stackPush()) {
-
             VkCommandBufferAllocateInfo allocInfo = VkCommandBufferAllocateInfo.callocStack(stack);
             allocInfo.sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO);
             allocInfo.level(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
@@ -116,9 +111,7 @@ public class CommandBufferManager {
     }
 
     public static void endSingleTimeCommands(VkCommandBuffer commandBuffer) {
-
         try (MemoryStack stack = stackPush()) {
-
             vkEndCommandBuffer(commandBuffer);
 
             VkSubmitInfo.Buffer submitInfo = VkSubmitInfo.callocStack(1, stack);
@@ -131,5 +124,4 @@ public class CommandBufferManager {
             vkFreeCommandBuffers(Variables.device, Variables.commandPool, commandBuffer);
         }
     }
-
 }

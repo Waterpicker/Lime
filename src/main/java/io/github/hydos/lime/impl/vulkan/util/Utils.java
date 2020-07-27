@@ -53,11 +53,9 @@ public class Utils {
     }
 
     public static void createFramebuffers() {
-
         Variables.swapChainFramebuffers = new ArrayList<>(Variables.swapChainImageViews.size());
 
         try (MemoryStack stack = stackPush()) {
-
             LongBuffer attachments = stack.longs(Variables.colorImageView, Variables.depthImageView, VK_NULL_HANDLE);
             LongBuffer pFramebuffer = stack.mallocLong(1);
 
@@ -84,6 +82,7 @@ public class Utils {
     public static void createSyncObjects() {
         Variables.inFlightFrames = new ArrayList<>(Frame.MAX_FRAMES_IN_FLIGHT);
         Variables.imagesInFlight = new HashMap<>(Variables.swapChainImages.size());
+
         try (MemoryStack stack = stackPush()) {
             VkSemaphoreCreateInfo semaphoreInfo = VkSemaphoreCreateInfo.callocStack(stack);
             semaphoreInfo.sType(VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO);
@@ -106,7 +105,6 @@ public class Utils {
     }
 
     public static PointerBuffer asPointerBuffer(Collection<String> collection) {
-
         MemoryStack stack = stackGet();
 
         PointerBuffer buffer = stack.mallocPointer(collection.size());

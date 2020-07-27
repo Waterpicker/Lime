@@ -13,7 +13,6 @@ import static org.lwjgl.vulkan.VK10.VK_NULL_HANDLE;
 public class VKWindow {
     public static void createSurface() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-
             LongBuffer pSurface = stack.longs(VK_NULL_HANDLE);
 
             VulkanError.failIfError(GLFWVulkan.glfwCreateWindowSurface(Variables.instance, Window.getWindow(), null, pSurface));

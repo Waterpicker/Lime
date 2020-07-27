@@ -21,5 +21,4 @@ public class VulkanRenderObject extends RenderObject {
     public VKModelLoader.VKMesh getRawModel() {
         return rawModel;
     }
-
 }

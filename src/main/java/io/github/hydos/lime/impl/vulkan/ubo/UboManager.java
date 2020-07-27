@@ -48,9 +48,12 @@ public class UboManager {
 
     private static void putArrayInUboMemory(ByteBuffer buffer, Matrix4f[] models) {
         int i = 0;
+
         for (Matrix4f mat : models) {
-            if (mat == null)
+            if (mat == null) {
                 mat = new Matrix4f();
+            }
+
             mat.get(mat4Size * i, buffer);
             i++;
         }
@@ -58,7 +61,6 @@ public class UboManager {
 
     public static void updateUniformBuffers(int currentImage) {
         try (MemoryStack stack = stackPush()) {
-
             GenericUbo ubo = new GenericUbo();
 
             for (VulkanRenderObject object : VulkanManager.getInstance().entityRenderer.entities) {

@@ -13,6 +13,7 @@ import static org.lwjgl.vulkan.KHRSurface.vkDestroySurfaceKHR;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class VulkanManager {
+
     private static VulkanManager INSTANCE;
 
     public EntityRenderer entityRenderer;
@@ -66,7 +67,7 @@ public class VulkanManager {
             VKBufferMesh bufferMesh = entity.getModel();
             bufferMesh.cleanup();
         }
+
         cleanupVulkan();
     }
-
 }

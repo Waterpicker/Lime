@@ -15,11 +15,11 @@ public class ModelManager {
 
     public static int lastModelIdRegistered = 0;
 
-    public static RenderObject createObject(String texturePath, File model, Vector3f position, Vector3f rotation, Vector3f scale){
+    public static RenderObject createObject(String texturePath, File model, Vector3f position, Vector3f rotation, Vector3f scale) {
         VulkanRenderObject object = new VulkanRenderObject();
         object.id = lastModelIdRegistered;
         lastModelIdRegistered++;
-        object.rawModel = VKModelLoader.loadModel(model, aiProcess_FlipUVs | aiProcess_DropNormals);;
+        object.rawModel = VKModelLoader.loadModel(model, aiProcess_FlipUVs | aiProcess_DropNormals);
         object.position = position;
         object.rotX = rotation.x();
         object.rotY = rotation.y();

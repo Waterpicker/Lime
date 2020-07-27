@@ -34,6 +34,7 @@ public class VKTextureManager {
         if (checkForExistingCompiledTexture(path)) {
             return new TexturedVulkanRenderObject(object, getExistingTexture(path));
         }
+
         try (MemoryStack stack = stackPush()) {
             CompiledTexture compiledTexture = new CompiledTexture();
             compiledTexture.path = path;

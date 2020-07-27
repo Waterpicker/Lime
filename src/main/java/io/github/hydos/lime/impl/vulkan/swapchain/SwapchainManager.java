@@ -5,12 +5,10 @@ import io.github.hydos.lime.core.math.CitrusMath;
 import io.github.hydos.lime.core.render.Renderer;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.VulkanError;
-import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
 import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
 import io.github.hydos.lime.impl.vulkan.render.VKRenderManager;
-import io.github.hydos.lime.impl.vulkan.texture.VKTextureManager;
-import io.github.hydos.lime.impl.vulkan.render.pipelines.VKPipelineManager;
+import io.github.hydos.lime.impl.vulkan.render.VKTextureManager;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
 import io.github.hydos.lime.impl.vulkan.ubo.UboManager;
 import io.github.hydos.lime.impl.vulkan.util.ImageUtils;
@@ -32,12 +30,6 @@ import static org.lwjgl.vulkan.KHRSwapchain.*;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class SwapchainManager {
-    
-    public static class SwapChainSupportDetails {
-        public VkSurfaceCapabilitiesKHR capabilities;
-        public VkSurfaceFormatKHR.Buffer formats;
-        public IntBuffer presentModes;
-    }
 
     public static void cleanupSwapChain() {
         vkDestroyImageView(Variables.device, Variables.colorImageView, null);
@@ -58,7 +50,6 @@ public class SwapchainManager {
         vkDestroySwapchainKHR(Variables.device, Variables.swapChain, null);
     }
 
-
     public static VkSurfaceFormatKHR chooseSwapSurfaceFormat(VkSurfaceFormatKHR.Buffer availableFormats) {
         return availableFormats.stream()
                 .filter(availableFormat -> availableFormat.format() == VK_FORMAT_B8G8R8_SRGB)
@@ -68,7 +59,6 @@ public class SwapchainManager {
     }
 
     public static int chooseSwapPresentMode(IntBuffer availablePresentModes) {
-
         for (int i = 0; i < availablePresentModes.capacity(); i++) {
             if (availablePresentModes.get(i) == VK_PRESENT_MODE_MAILBOX_KHR) {
                 return availablePresentModes.get(i);
@@ -79,7 +69,6 @@ public class SwapchainManager {
     }
 
     public static VkExtent2D chooseSwapExtent(VkSurfaceCapabilitiesKHR capabilities) {
-
         if (capabilities.currentExtent().width() != Variables.UINT32_MAX) {
             return capabilities.currentExtent();
         }
@@ -101,7 +90,6 @@ public class SwapchainManager {
     }
 
     public static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, MemoryStack stack) {
-
         SwapChainSupportDetails details = new SwapChainSupportDetails();
 
         details.capabilities = VkSurfaceCapabilitiesKHR.mallocStack(stack);
@@ -127,7 +115,6 @@ public class SwapchainManager {
     }
 
     public static void recreateSwapChain() {
-
         try (MemoryStack stack = stackPush()) {
 
             IntBuffer width = stack.ints(0);
@@ -147,7 +134,6 @@ public class SwapchainManager {
     }
 
     public static void createSwapChain() {
-
         try (MemoryStack stack = stackPush()) {
 
             SwapChainSupportDetails swapChainSupport = querySwapChainSupport(Variables.physicalDevice, stack);
@@ -214,7 +200,6 @@ public class SwapchainManager {
         }
     }
 
-
     /**
      * creates objects in the swap chain such as the render pass, pipeline, resources, framebuffers, ubos, etc
      */
@@ -222,7 +207,7 @@ public class SwapchainManager {
         createSwapChain();
         ImageUtils.createImageViews();
         VKRenderManager.createRenderPass();
-        for(Renderer renderer : VKRenderManager.getInstance().renderers){
+        for (Renderer renderer : VKRenderManager.getInstance().renderers) {
             renderer.createShader();
         }
         //TODO: loop through all renderers and create shaders
@@ -235,4 +220,9 @@ public class SwapchainManager {
         CommandBufferManager.createCommandBuffers();
     }
 
+    public static class SwapChainSupportDetails {
+        public VkSurfaceCapabilitiesKHR capabilities;
+        public VkSurfaceFormatKHR.Buffer formats;
+        public IntBuffer presentModes;
+    }
 }

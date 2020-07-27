@@ -24,5 +24,4 @@ public class VKBufferMesh {
         vkDestroyBuffer(Variables.device, vertexBuffer, null);
         vkFreeMemory(Variables.device, vertexBufferMemory, null);
     }
-
 }

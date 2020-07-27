@@ -27,7 +27,6 @@ public class DeviceManager {
         QueueFamilyIndices indices = new QueueFamilyIndices();
 
         try (MemoryStack stack = stackPush()) {
-
             IntBuffer queueFamilyCount = stack.ints(0);
             vkGetPhysicalDeviceQueueFamilyProperties(device, queueFamilyCount, null);
             VkQueueFamilyProperties.Buffer queueFamilies = VkQueueFamilyProperties.mallocStack(queueFamilyCount.get(0), stack);
@@ -48,9 +47,7 @@ public class DeviceManager {
     }
 
     public static void createLogicalDevice() {
-
         try (MemoryStack stack = stackPush()) {
-
             QueueFamilyIndices indices = findQueueFamilies(Variables.physicalDevice);
 
             int[] uniqueQueueFamilies = indices.unique();
@@ -98,32 +95,34 @@ public class DeviceManager {
         try (MemoryStack stack = stackPush()) {
             IntBuffer deviceCount = stack.ints(0);
             vkEnumeratePhysicalDevices(Variables.instance, deviceCount, null);
+
             if (deviceCount.get(0) == 0) {
                 throw new RuntimeException("Failed to find GPUs with Vulkan support");
             }
+
             PointerBuffer ppPhysicalDevices = stack.mallocPointer(deviceCount.get(0));
             vkEnumeratePhysicalDevices(Variables.instance, deviceCount, ppPhysicalDevices);
             VkPhysicalDevice device = null;
-            for (int i = 0; i < ppPhysicalDevices.capacity(); i++) {
 
+            for (int i = 0; i < ppPhysicalDevices.capacity(); i++) {
                 device = new VkPhysicalDevice(ppPhysicalDevices.get(i), Variables.instance);
 
                 if (isDeviceSuitable(device)) {
                     break;
                 }
             }
+
             if (device == null) {
                 throw new RuntimeException("Failed to find a suitable GPU");
             }
+
             Variables.physicalDevice = device;
             Variables.msaaSamples = Utils.getMaxUsableSampleCount();
         }
     }
 
     public static boolean checkDeviceExtensionSupport(VkPhysicalDevice device) {
-
         try (MemoryStack stack = stackPush()) {
-
             IntBuffer extensionCount = stack.ints(0);
 
             vkEnumerateDeviceExtensionProperties(device, (String) null, extensionCount, null);
@@ -135,7 +134,6 @@ public class DeviceManager {
     }
 
     private static boolean isDeviceSuitable(VkPhysicalDevice device) {
-
         QueueFamilyIndices indices = findQueueFamilies(device);
 
         boolean extensionsSupported = checkDeviceExtensionSupport(device);
@@ -167,6 +165,4 @@ public class DeviceManager {
             return IntStream.of(graphicsFamily, presentFamily).distinct().toArray();
         }
     }
-
-
 }

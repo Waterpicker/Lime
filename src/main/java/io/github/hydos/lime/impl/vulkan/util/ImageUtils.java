@@ -17,7 +17,6 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class ImageUtils {
 
-
     public static void transitionImageLayout(long image, int format, int oldLayout, int newLayout, int mipLevels) {
         try (MemoryStack stack = stackPush()) {
             VkImageMemoryBarrier.Buffer barrier = VkImageMemoryBarrier.callocStack(1, stack);
@@ -274,9 +273,7 @@ public class ImageUtils {
 
 
     public static void createColorResources() {
-
         try (MemoryStack stack = stackPush()) {
-
             LongBuffer pColorImage = stack.mallocLong(1);
             LongBuffer pColorImageMemory = stack.mallocLong(1);
 
@@ -300,9 +297,7 @@ public class ImageUtils {
     }
 
     public static void createDepthResources() {
-
         try (MemoryStack stack = stackPush()) {
-
             int depthFormat = findDepthFormat();
 
             LongBuffer pDepthImage = stack.mallocLong(1);
@@ -333,9 +328,7 @@ public class ImageUtils {
     }
 
     public static int findSupportedFormat(IntBuffer formatCandidates, int tiling, int features) {
-
         try (MemoryStack stack = stackPush()) {
-
             VkFormatProperties props = VkFormatProperties.callocStack(stack);
 
             for (int i = 0; i < formatCandidates.capacity(); ++i) {
