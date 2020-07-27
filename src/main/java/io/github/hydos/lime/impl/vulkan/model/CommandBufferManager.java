@@ -2,6 +2,7 @@ package io.github.hydos.lime.impl.vulkan.model;
 
 import io.github.hydos.lime.core.io.Window;
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -26,9 +27,7 @@ public class CommandBufferManager {
 
             LongBuffer pCommandPool = stack.mallocLong(1);
 
-            if (vkCreateCommandPool(Variables.device, poolInfo, null, pCommandPool) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create command pool");
-            }
+            VulkanError.failIfError(vkCreateCommandPool(Variables.device, poolInfo, null, pCommandPool));
 
             Variables.commandPool = pCommandPool.get(0);
         }
@@ -50,9 +49,7 @@ public class CommandBufferManager {
 
             PointerBuffer pCommandBuffers = stack.mallocPointer(commandBuffersCount);
 
-            if (vkAllocateCommandBuffers(Variables.device, allocInfo, pCommandBuffers) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to allocate command buffers");
-            }
+            VulkanError.failIfError(vkAllocateCommandBuffers(Variables.device, allocInfo, pCommandBuffers));
 
             for (int i = 0; i < commandBuffersCount; i++) {
                 Variables.commandBuffers.add(new VkCommandBuffer(pCommandBuffers.get(i), Variables.device));
@@ -78,30 +75,19 @@ public class CommandBufferManager {
             renderPassInfo.pClearValues(clearValues);
 
             for (int i = 0; i < commandBuffersCount; i++) {
-
                 VkCommandBuffer commandBuffer = Variables.commandBuffers.get(i);
 
-                if (vkBeginCommandBuffer(commandBuffer, beginInfo) != VK_SUCCESS) {
-                    throw new RuntimeException("Failed to begin recording command buffer");
-                }
-
+                VulkanError.failIfError(vkBeginCommandBuffer(commandBuffer, beginInfo));
                 renderPassInfo.framebuffer(Variables.swapChainFramebuffers.get(i));
-
 
                 vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
                 {
-                    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, Variables.graphicsPipeline);
                     Variables.renderManager.render(stack, commandBuffer, i);
                 }
                 vkCmdEndRenderPass(commandBuffer);
 
-
-                if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-                    throw new RuntimeException("Failed to record command buffer");
-                }
-
+                VulkanError.failIfError(vkEndCommandBuffer(commandBuffer));
             }
-
         }
     }
 

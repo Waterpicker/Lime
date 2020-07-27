@@ -12,9 +12,7 @@ import static org.lwjgl.vulkan.VK10.*;
 public class VulkanReg {
 
     public static void createInstance() {
-
         try (MemoryStack stack = stackPush()) {
-
             // Use calloc to initialize the structs with 0s. Otherwise, the program can crash due to random values
 
             VkApplicationInfo appInfo = VkApplicationInfo.callocStack(stack);
@@ -35,13 +33,8 @@ public class VulkanReg {
 
             // We need to retrieve the pointer of the created instance
             PointerBuffer instancePtr = stack.mallocPointer(1);
-
-            if (vkCreateInstance(createInfo, null, instancePtr) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create instance");
-            }
-
+            VulkanError.failIfError(vkCreateInstance(createInfo, null, instancePtr));
             Variables.instance = new VkInstance(instancePtr.get(0), createInfo);
         }
     }
-
 }

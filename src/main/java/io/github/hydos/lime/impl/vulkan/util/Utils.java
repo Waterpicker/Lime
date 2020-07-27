@@ -1,16 +1,16 @@
 package io.github.hydos.lime.impl.vulkan.util;
 
-import io.github.hydos.example.VulkanExample;
 import io.github.hydos.lime.impl.vulkan.Variables;
-import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
-import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.render.Frame;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Pointer;
-import org.lwjgl.vulkan.*;
+import org.lwjgl.vulkan.VkFenceCreateInfo;
+import org.lwjgl.vulkan.VkFramebufferCreateInfo;
+import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
+import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
 
-import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,10 +75,7 @@ public class Utils {
 
                 framebufferInfo.pAttachments(attachments);
 
-                if (vkCreateFramebuffer(Variables.device, framebufferInfo, null, pFramebuffer) != VK_SUCCESS) {
-                    throw new RuntimeException("Failed to create framebuffer");
-                }
-
+                VulkanError.failIfError(vkCreateFramebuffer(Variables.device, framebufferInfo, null, pFramebuffer));
                 Variables.swapChainFramebuffers.add(pFramebuffer.get(0));
             }
         }
@@ -100,12 +97,9 @@ public class Utils {
             LongBuffer pFence = stack.mallocLong(1);
 
             for (int i = 0; i < Frame.MAX_FRAMES_IN_FLIGHT; i++) {
-                if (vkCreateSemaphore(Variables.device, semaphoreInfo, null, pImageAvailableSemaphore) != VK_SUCCESS
-                        || vkCreateSemaphore(Variables.device, semaphoreInfo, null, pRenderFinishedSemaphore) != VK_SUCCESS
-                        || vkCreateFence(Variables.device, fenceInfo, null, pFence) != VK_SUCCESS) {
-
-                    throw new RuntimeException("Failed to create synchronization objects for the frame " + i);
-                }
+                VulkanError.failIfError(vkCreateSemaphore(Variables.device, semaphoreInfo, null, pImageAvailableSemaphore));
+                VulkanError.failIfError(vkCreateSemaphore(Variables.device, semaphoreInfo, null, pRenderFinishedSemaphore));
+                VulkanError.failIfError(vkCreateFence(Variables.device, fenceInfo, null, pFence));
                 Variables.inFlightFrames.add(new Frame(pImageAvailableSemaphore.get(0), pRenderFinishedSemaphore.get(0), pFence.get(0)));
             }
         }

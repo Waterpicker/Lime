@@ -2,6 +2,7 @@ package io.github.hydos.lime.impl.vulkan.texture;
 
 import io.github.hydos.lime.core.math.CitrusMath;
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.elements.TexturedVulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
@@ -151,9 +152,7 @@ public class VKTextureManager {
 
             LongBuffer pTextureSampler = stack.mallocLong(1);
 
-            if (vkCreateSampler(Variables.device, samplerInfo, null, pTextureSampler) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create texture sampler");
-            }
+            VulkanError.failIfError(vkCreateSampler(Variables.device, samplerInfo, null, pTextureSampler));
 
             texture.textureSampler = pTextureSampler.get(0);
         }

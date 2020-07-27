@@ -1,6 +1,5 @@
 package io.github.hydos.lime.impl.vulkan.elements;
 
-import io.github.hydos.lime.core.core.ModelManager;
 import io.github.hydos.lime.impl.vulkan.texture.CompiledTexture;
 
 public class TexturedVulkanRenderObject extends VulkanRenderObject {

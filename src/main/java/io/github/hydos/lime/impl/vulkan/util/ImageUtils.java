@@ -1,6 +1,7 @@
 package io.github.hydos.lime.impl.vulkan.util;
 
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKMemoryUtils;
 import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
 import org.lwjgl.system.MemoryStack;
@@ -235,9 +236,7 @@ public class ImageUtils {
             viewInfo.subresourceRange().layerCount(1);
 
             LongBuffer pImageView = stack.mallocLong(1);
-            if (vkCreateImageView(Variables.device, viewInfo, null, pImageView) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create texture image view");
-            }
+            VulkanError.failIfError(vkCreateImageView(Variables.device, viewInfo, null, pImageView));
             return pImageView.get(0);
         }
     }
@@ -258,9 +257,7 @@ public class ImageUtils {
             imageInfo.usage(usage);
             imageInfo.samples(numSamples);
             imageInfo.sharingMode(VK_SHARING_MODE_EXCLUSIVE);
-            if (vkCreateImage(Variables.device, imageInfo, null, pTextureImage) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create image");
-            }
+            VulkanError.failIfError(vkCreateImage(Variables.device, imageInfo, null, pTextureImage));
 
             VkMemoryRequirements memRequirements = VkMemoryRequirements.mallocStack(stack);
             vkGetImageMemoryRequirements(Variables.device, pTextureImage.get(0), memRequirements);
@@ -270,9 +267,7 @@ public class ImageUtils {
             allocInfo.allocationSize(memRequirements.size());
             allocInfo.memoryTypeIndex(VKMemoryUtils.findMemoryType(memRequirements.memoryTypeBits(), memProperties));
 
-            if (vkAllocateMemory(Variables.device, allocInfo, null, pTextureImageMemory) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to allocate image memory");
-            }
+            VulkanError.failIfError(vkAllocateMemory(Variables.device, allocInfo, null, pTextureImageMemory));
             vkBindImageMemory(Variables.device, pTextureImage.get(0), pTextureImageMemory.get(0), 0);
         }
     }

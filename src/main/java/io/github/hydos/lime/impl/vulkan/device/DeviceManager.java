@@ -1,8 +1,7 @@
-
 package io.github.hydos.lime.impl.vulkan.device;
 
-import io.github.hydos.example.VulkanExample;
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.swapchain.SwapchainManager;
 import io.github.hydos.lime.impl.vulkan.util.Utils;
 import org.lwjgl.PointerBuffer;
@@ -24,19 +23,6 @@ public class DeviceManager {
 
     public static final Set<String> DEVICE_EXTENSIONS = Stream.of(KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME).collect(Collectors.toSet());
 
-    public static class QueueFamilyIndices {
-        public Integer graphicsFamily;
-        public Integer presentFamily;
-
-        public boolean isComplete() {
-            return graphicsFamily != null && presentFamily != null;
-        }
-
-        public int[] unique() {
-            return IntStream.of(graphicsFamily, presentFamily).distinct().toArray();
-        }
-    }
-    
     public static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
         QueueFamilyIndices indices = new QueueFamilyIndices();
 
@@ -94,9 +80,7 @@ public class DeviceManager {
 
             PointerBuffer pDevice = stack.pointers(VK_NULL_HANDLE);
 
-            if (vkCreateDevice(Variables.physicalDevice, createInfo, null, pDevice) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create logical device");
-            }
+            VulkanError.failIfError(vkCreateDevice(Variables.physicalDevice, createInfo, null, pDevice));
 
             Variables.device = new VkDevice(pDevice.get(0), Variables.physicalDevice, createInfo);
 
@@ -169,6 +153,19 @@ public class DeviceManager {
         }
 
         return indices.isComplete() && extensionsSupported && swapChainAdequate && anisotropySupported;
+    }
+
+    public static class QueueFamilyIndices {
+        public Integer graphicsFamily;
+        public Integer presentFamily;
+
+        public boolean isComplete() {
+            return graphicsFamily != null && presentFamily != null;
+        }
+
+        public int[] unique() {
+            return IntStream.of(graphicsFamily, presentFamily).distinct().toArray();
+        }
     }
 
 

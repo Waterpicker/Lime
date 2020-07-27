@@ -2,7 +2,10 @@ package io.github.hydos.lime.impl.vulkan.swapchain;
 
 import io.github.hydos.lime.core.io.Window;
 import io.github.hydos.lime.core.math.CitrusMath;
+import io.github.hydos.lime.core.render.Renderer;
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
+import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
 import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
 import io.github.hydos.lime.impl.vulkan.render.VKRenderManager;
@@ -48,7 +51,7 @@ public class SwapchainManager {
         vkDestroyDescriptorPool(Variables.device, DescriptorManager.descriptorPool, null);
         Variables.swapChainFramebuffers.forEach(framebuffer -> vkDestroyFramebuffer(Variables.device, framebuffer, null));
         vkFreeCommandBuffers(Variables.device, Variables.commandPool, Utils.asPointerBuffer(Variables.commandBuffers));
-        vkDestroyPipeline(Variables.device, Variables.graphicsPipeline, null);
+//        vkDestroyPipeline(Variables.device, Variables.graphicsPipeline, null); TODO: loop through renderers and clean
         vkDestroyPipelineLayout(Variables.device, Variables.pipelineLayout, null);
         vkDestroyRenderPass(Variables.device, Variables.renderPass, null);
         Variables.swapChainImageViews.forEach(imageView -> vkDestroyImageView(Variables.device, imageView, null));
@@ -190,9 +193,7 @@ public class SwapchainManager {
 
             LongBuffer pSwapChain = stack.longs(VK_NULL_HANDLE);
 
-            if (vkCreateSwapchainKHR(Variables.device, createInfo, null, pSwapChain) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create swap chain");
-            }
+            VulkanError.failIfError(vkCreateSwapchainKHR(Variables.device, createInfo, null, pSwapChain));
 
             Variables.swapChain = pSwapChain.get(0);
 
@@ -221,7 +222,10 @@ public class SwapchainManager {
         createSwapChain();
         ImageUtils.createImageViews();
         VKRenderManager.createRenderPass();
-        VKPipelineManager.createGraphicsPipeline();
+        for(Renderer renderer : VKRenderManager.getInstance().renderers){
+            renderer.createShader();
+        }
+        //TODO: loop through all renderers and create shaders
         ImageUtils.createColorResources();
         ImageUtils.createDepthResources();
         Utils.createFramebuffers();

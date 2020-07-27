@@ -1,6 +1,7 @@
 package io.github.hydos.lime.impl.vulkan.render.pipelines;
 
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 import io.github.hydos.lime.impl.vulkan.shaders.VKShaderManager;
 import io.github.hydos.lime.impl.vulkan.shaders.VKShaderUtils;
@@ -16,8 +17,7 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class VKPipelineManager {
 
-    public static void createGraphicsPipeline() {
-
+    public static long createGraphicsPipeline() {
         try (MemoryStack stack = stackPush()) {
             VKShaderUtils.SPIRV vertShaderSPIRV = VKShaderUtils.compileShaderFile("shaders/entity.vert", VKShaderUtils.ShaderType.VERTEX_SHADER);
             VKShaderUtils.SPIRV fragShaderSPIRV = VKShaderUtils.compileShaderFile("shaders/entity.frag", VKShaderUtils.ShaderType.FRAGMENT_SHADER);
@@ -127,9 +127,7 @@ public class VKPipelineManager {
 
             LongBuffer pPipelineLayout = stack.longs(VK_NULL_HANDLE);
 
-            if (vkCreatePipelineLayout(Variables.device, pipelineLayoutInfo, null, pPipelineLayout) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create pipeline layout");
-            }
+            VulkanError.failIfError(vkCreatePipelineLayout(Variables.device, pipelineLayoutInfo, null, pPipelineLayout));
 
             Variables.pipelineLayout = pPipelineLayout.get(0);
 
@@ -151,11 +149,7 @@ public class VKPipelineManager {
 
             LongBuffer pGraphicsPipeline = stack.mallocLong(1);
 
-            if (vkCreateGraphicsPipelines(Variables.device, VK_NULL_HANDLE, pipelineInfo, null, pGraphicsPipeline) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create graphics pipeline");
-            }
-
-            Variables.graphicsPipeline = pGraphicsPipeline.get(0);
+            VulkanError.failIfError(vkCreateGraphicsPipelines(Variables.device, VK_NULL_HANDLE, pipelineInfo, null, pGraphicsPipeline));
 
             // Cleanup
 
@@ -164,6 +158,8 @@ public class VKPipelineManager {
 
             vertShaderSPIRV.free();
             fragShaderSPIRV.free();
+
+            return pGraphicsPipeline.get(0);
         }
     }
 

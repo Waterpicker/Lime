@@ -1,7 +1,7 @@
 package io.github.hydos.lime.impl.vulkan.ubo;
 
-import io.github.hydos.example.VulkanExample;
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.texture.CompiledTexture;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -20,11 +20,11 @@ public class DescriptorManager {
     public static long descriptorPool;
     public static long descriptorSetLayout;
 
-    public static Map<CompiledTexture, List<Long>> descriptorSetsMap = new HashMap<>();;
+    public static Map<CompiledTexture, List<Long>> descriptorSetsMap = new HashMap<>();
 
     public static void createDescriptorSets(List<CompiledTexture> textures) {
         try (MemoryStack stack = stackPush()) {
-            for(CompiledTexture compiledTexture : textures){
+            for (CompiledTexture compiledTexture : textures) {
                 LongBuffer layouts = stack.mallocLong(Variables.swapChainImages.size());
                 for (int i = 0; i < layouts.capacity(); i++) {
                     layouts.put(i, descriptorSetLayout);
@@ -37,11 +37,7 @@ public class DescriptorManager {
 
                 LongBuffer pDescriptorSets = stack.mallocLong(Variables.swapChainImages.size());
 
-                int err = vkAllocateDescriptorSets(Variables.device, allocInfo, pDescriptorSets);
-                if (err != VK_SUCCESS) {
-                    throw new RuntimeException("Failed to allocate descriptor sets " + err);
-                }
-
+                VulkanError.failIfError(vkAllocateDescriptorSets(Variables.device, allocInfo, pDescriptorSets));
                 List<Long> descriptorSets = new ArrayList<>(pDescriptorSets.capacity());
 
                 VkDescriptorBufferInfo.Buffer bufferInfo = VkDescriptorBufferInfo.callocStack(1, stack);
@@ -116,9 +112,7 @@ public class DescriptorManager {
 
             LongBuffer pDescriptorSetLayout = stack.mallocLong(1);
 
-            if (vkCreateDescriptorSetLayout(Variables.device, layoutInfo, null, pDescriptorSetLayout) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create descriptor set layout");
-            }
+            VulkanError.failIfError(vkCreateDescriptorSetLayout(Variables.device, layoutInfo, null, pDescriptorSetLayout));
             descriptorSetLayout = pDescriptorSetLayout.get(0);
         }
     }
@@ -138,12 +132,10 @@ public class DescriptorManager {
             VkDescriptorPoolCreateInfo poolInfo = VkDescriptorPoolCreateInfo.callocStack(stack);
             poolInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO);
             poolInfo.pPoolSizes(poolSizes);
-            poolInfo.maxSets(Variables.swapChainImages.size() * Variables.MAX_DESCRIPTOR_COUNT);
+            poolInfo.maxSets(Variables.MAX_DESCRIPTOR_COUNT);
             LongBuffer pDescriptorPool = stack.mallocLong(1);
 
-            if (vkCreateDescriptorPool(Variables.device, poolInfo, null, pDescriptorPool) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create descriptor pool");
-            }
+            VulkanError.failIfError(vkCreateDescriptorPool(Variables.device, poolInfo, null, pDescriptorPool));
             descriptorPool = pDescriptorPool.get(0);
         }
     }

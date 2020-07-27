@@ -2,6 +2,7 @@ package io.github.hydos.lime.impl.vulkan.render;
 
 import io.github.hydos.lime.core.render.Renderer;
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.util.ImageUtils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -114,27 +115,14 @@ public class VKRenderManager {
 
             LongBuffer pRenderPass = stack.mallocLong(1);
 
-            if (vkCreateRenderPass(Variables.device, renderPassInfo, null, pRenderPass) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create render pass");
-            }
+            VulkanError.failIfError(vkCreateRenderPass(Variables.device, renderPassInfo, null, pRenderPass));
 
             Variables.renderPass = pRenderPass.get(0);
         }
     }
 
     public void addRenderer(Renderer renderer) {
-        if (renderers == null || renderers.size() == 0) {
-            renderers = new ArrayList<>();
-            renderers.add(renderer);
-        } else {
-            for (int i = 0; i < renderers.size(); i++) {
-                Renderer r = renderers.get(i);
-                if (r.priority < renderer.priority) {
-                    renderers.add(i, renderer);
-                    return;
-                }
-            }
-        }
+        renderers.add(renderer);
     }
 
     public void render(MemoryStack stack, VkCommandBuffer commandBuffer, int index) {
