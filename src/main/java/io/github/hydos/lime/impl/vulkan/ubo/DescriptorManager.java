@@ -132,7 +132,7 @@ public class DescriptorManager {
             VkDescriptorPoolCreateInfo poolInfo = VkDescriptorPoolCreateInfo.callocStack(stack);
             poolInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO);
             poolInfo.pPoolSizes(poolSizes);
-            poolInfo.maxSets(Variables.swapChainImages.size() * Variables.MAX_DESCRIPTOR_COUNT);
+            poolInfo.maxSets(Variables.MAX_DESCRIPTOR_COUNT);
             LongBuffer pDescriptorPool = stack.mallocLong(1);
 
             VulkanError.failIfError(vkCreateDescriptorPool(Variables.device, poolInfo, null, pDescriptorPool));
