@@ -59,6 +59,7 @@ public class EntityRenderer extends Renderer {
 
     @Override
     public void VKRender(MemoryStack stack, VkCommandBuffer commandBuffer, int index) {
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, Variables.graphicsPipeline);
         for (TexturedVulkanRenderObject entity : entities) {
             VKBufferMesh mesh = entity.getModel();
 

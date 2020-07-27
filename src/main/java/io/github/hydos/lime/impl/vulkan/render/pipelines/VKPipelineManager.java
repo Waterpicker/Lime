@@ -17,7 +17,6 @@ import static org.lwjgl.vulkan.VK10.*;
 public class VKPipelineManager {
 
     public static void createGraphicsPipeline() {
-
         try (MemoryStack stack = stackPush()) {
             VKShaderUtils.SPIRV vertShaderSPIRV = VKShaderUtils.compileShaderFile("shaders/entity.vert", VKShaderUtils.ShaderType.VERTEX_SHADER);
             VKShaderUtils.SPIRV fragShaderSPIRV = VKShaderUtils.compileShaderFile("shaders/entity.frag", VKShaderUtils.ShaderType.FRAGMENT_SHADER);
