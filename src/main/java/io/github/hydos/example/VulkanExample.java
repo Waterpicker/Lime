@@ -20,17 +20,14 @@ import io.github.hydos.lime.resource.Resource;
 import io.github.hydos.lime.resource.ResourceManager;
 import org.joml.Vector3f;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
 
+import static io.github.hydos.lime.IDoNotKnow.GLOBAL_RESOURCE_MANAGER;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 import static org.lwjgl.vulkan.VK10.vkDeviceWaitIdle;
 
 public class VulkanExample {
-
-    private final ResourceManager resourceManager = new ClassLoaderResourceManager(ClassLoader.getSystemClassLoader(), "assets/");
 
     RenderObject chalet;
     RenderObject dragon;
@@ -47,11 +44,11 @@ public class VulkanExample {
     }
 
     private void loadModels() throws IOException {
-        Resource charletModel = resourceManager.getResource(new Identifier("example", "models/chalet.obj")).get();
-        Resource dragonModel = resourceManager.getResource(new Identifier("example", "models/dragon.obj")).get();
+        Resource charletModel = GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "models/chalet.obj")).get();
+        Resource dragonModel = GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "models/dragon.obj")).get();
 
-        Resource charletTexture = resourceManager.getResource(new Identifier("example", "textures/chalet.jpg")).get();
-        Resource dragonTexture = resourceManager.getResource(new Identifier("example", "textures/skybox/back.png")).get();
+        Resource charletTexture = GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "textures/chalet.jpg")).get();
+        Resource dragonTexture = GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "textures/skybox/back.png")).get();
 
         chalet = ModelManager.createObject(charletTexture, charletModel, new Vector3f(-2, -0.4f, 0.5f), new Vector3f(-90, 0, 0), new Vector3f(1f, 1f, 1f));
         dragon = ModelManager.createObject(dragonTexture, dragonModel, new Vector3f(-2, -1, 0), new Vector3f(), new Vector3f(0.3f, 0.3f, 0.3f));

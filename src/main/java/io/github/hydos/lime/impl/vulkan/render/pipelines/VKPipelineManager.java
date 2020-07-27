@@ -1,14 +1,18 @@
 package io.github.hydos.lime.impl.vulkan.render.pipelines;
 
+import io.github.hydos.lime.IDoNotKnow;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 import io.github.hydos.lime.impl.vulkan.shaders.VKShaderManager;
 import io.github.hydos.lime.impl.vulkan.shaders.VKShaderUtils;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
+import io.github.hydos.lime.resource.Identifier;
+import io.github.hydos.lime.resource.Resource;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 
@@ -19,8 +23,11 @@ public class VKPipelineManager {
 
     public static long createGraphicsPipeline() {
         try (MemoryStack stack = stackPush()) {
-            VKShaderUtils.SPIRV vertShaderSPIRV = VKShaderUtils.compileShaderFile("shaders/entity.vert", VKShaderUtils.ShaderType.VERTEX_SHADER);
-            VKShaderUtils.SPIRV fragShaderSPIRV = VKShaderUtils.compileShaderFile("shaders/entity.frag", VKShaderUtils.ShaderType.FRAGMENT_SHADER);
+            Resource vertexShader = IDoNotKnow.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/entity.vert")).get();
+            Resource fragmentShader = IDoNotKnow.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/entity.frag")).get();
+
+            VKShaderUtils.SPIRV vertShaderSPIRV = VKShaderUtils.compileShader(vertexShader, VKShaderUtils.ShaderType.VERTEX_SHADER);
+            VKShaderUtils.SPIRV fragShaderSPIRV = VKShaderUtils.compileShader(fragmentShader, VKShaderUtils.ShaderType.FRAGMENT_SHADER);
 
             long vertShaderModule = VKShaderManager.createShaderModule(vertShaderSPIRV.bytecode());
             long fragShaderModule = VKShaderManager.createShaderModule(fragShaderSPIRV.bytecode());
@@ -160,6 +167,8 @@ public class VKPipelineManager {
             fragShaderSPIRV.free();
 
             return pGraphicsPipeline.get(0);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
         }
     }
 }

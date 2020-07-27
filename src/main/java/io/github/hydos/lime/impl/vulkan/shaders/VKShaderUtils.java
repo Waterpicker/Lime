@@ -1,36 +1,22 @@
 package io.github.hydos.lime.impl.vulkan.shaders;
 
+import io.github.hydos.lime.resource.Resource;
 import org.lwjgl.system.NativeResource;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 
-import static java.lang.ClassLoader.getSystemClassLoader;
 import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.util.shaderc.Shaderc.*;
 
 public class VKShaderUtils {
 
-    public static SPIRV compileShaderFile(String shaderFile, ShaderType shaderKind) {
-        return compileShaderAbsoluteFile(getSystemClassLoader().getResource(shaderFile).toExternalForm(), shaderKind);
+    public static SPIRV compileShader(Resource resource, ShaderType shaderKind) throws IOException {
+        return compileShaderSource(resource.getIdentifier().toString(), StandardCharsets.UTF_8.decode(resource.readIntoBuffer(false)).toString(), shaderKind);
     }
 
-    public static SPIRV compileShaderAbsoluteFile(String shaderFile, ShaderType shaderKind) {
-        try {
-            String source = new String(Files.readAllBytes(Paths.get(new URI(shaderFile))));
-            return compileShader(shaderFile, source, shaderKind);
-        } catch (IOException | URISyntaxException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public static SPIRV compileShader(String filename, String source, ShaderType shaderKind) {
+    private static SPIRV compileShaderSource(String filename, String source, ShaderType shaderKind) {
         long compiler = shaderc_compiler_initialize();
 
         if (compiler == NULL) {
