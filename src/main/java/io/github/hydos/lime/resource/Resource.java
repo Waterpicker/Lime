@@ -24,6 +24,7 @@ public interface Resource {
 
         ByteBuffer byteBuffer = direct ? ByteBuffer.allocateDirect(outputStream.size()) : ByteBuffer.allocate(outputStream.size());
         byteBuffer.put(outputStream.toByteArray());
+        byteBuffer.rewind();
         return byteBuffer;
     }
 }

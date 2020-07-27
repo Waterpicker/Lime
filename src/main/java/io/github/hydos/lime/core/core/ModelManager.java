@@ -17,7 +17,7 @@ public class ModelManager {
 
     public static int lastModelIdRegistered = 0;
 
-    public static RenderObject createObject(String texturePath, Resource model, Vector3f position, Vector3f rotation, Vector3f scale) throws IOException {
+    public static RenderObject createObject(Resource texture, Resource model, Vector3f position, Vector3f rotation, Vector3f scale) throws IOException {
         VulkanRenderObject object = new VulkanRenderObject();
         object.id = lastModelIdRegistered;
         lastModelIdRegistered++;
@@ -27,6 +27,6 @@ public class ModelManager {
         object.rotY = rotation.y();
         object.rotZ = rotation.z();
         object.scale = scale;
-        return VKTextureManager.textureModel(texturePath, object);
+        return VKTextureManager.textureModel(texture, object);
     }
 }

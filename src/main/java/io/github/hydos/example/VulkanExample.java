@@ -50,8 +50,11 @@ public class VulkanExample {
         Resource charletModel = resourceManager.getResource(new Identifier("example", "models/chalet.obj")).get();
         Resource dragonModel = resourceManager.getResource(new Identifier("example", "models/dragon.obj")).get();
 
-        chalet = ModelManager.createObject("textures/chalet.jpg", charletModel, new Vector3f(-2, -0.4f, 0.5f), new Vector3f(-90, 0, 0), new Vector3f(1f, 1f, 1f));
-        dragon = ModelManager.createObject("textures/skybox/back.png", dragonModel, new Vector3f(-2, -1, 0), new Vector3f(), new Vector3f(0.3f, 0.3f, 0.3f));
+        Resource charletTexture = resourceManager.getResource(new Identifier("example", "textures/chalet.jpg")).get();
+        Resource dragonTexture = resourceManager.getResource(new Identifier("example", "textures/skybox/back.png")).get();
+
+        chalet = ModelManager.createObject(charletTexture, charletModel, new Vector3f(-2, -0.4f, 0.5f), new Vector3f(-90, 0, 0), new Vector3f(1f, 1f, 1f));
+        dragon = ModelManager.createObject(dragonTexture, dragonModel, new Vector3f(-2, -1, 0), new Vector3f(), new Vector3f(0.3f, 0.3f, 0.3f));
 
         VulkanManager.getInstance().entityRenderer.processEntity(chalet);
         VulkanManager.getInstance().entityRenderer.processEntity(dragon);
