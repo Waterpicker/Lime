@@ -55,9 +55,9 @@ public class CascadingResourceManager implements ResourceManager {
     }
 
     @Override
-    public void close() {
+    public void invalidate() {
         for (ResourceManager manager : managers) {
-            manager.close();
+            manager.invalidate();
         }
     }
 }

@@ -33,7 +33,7 @@ public class ClassLoaderResourceManager implements ResourceManager {
     }
 
     @Override
-    public void close() {
+    public void invalidate() {
         loadedResources.removeIf(resource -> resource.invalid = true);
     }
 

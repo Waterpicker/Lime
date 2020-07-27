@@ -22,6 +22,6 @@ public interface ResourceManager {
         return resources;
     }
 
-    default void close() {
+    default void invalidate() {
     }
 }
