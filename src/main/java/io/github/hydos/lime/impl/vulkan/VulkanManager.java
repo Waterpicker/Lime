@@ -2,9 +2,10 @@ package io.github.hydos.lime.impl.vulkan;
 
 import io.github.hydos.lime.core.io.Window;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
-import io.github.hydos.lime.impl.vulkan.render.VKBufferMesh;
+import io.github.hydos.lime.impl.vulkan.model.VKBufferMesh;
 import io.github.hydos.lime.impl.vulkan.render.VKRenderManager;
 import io.github.hydos.lime.impl.vulkan.render.renderers.EntityRenderer;
+import io.github.hydos.lime.impl.vulkan.render.renderers.GuiRenderer;
 import io.github.hydos.lime.impl.vulkan.swapchain.SwapchainManager;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
 
@@ -15,6 +16,7 @@ public class VulkanManager {
     private static VulkanManager INSTANCE;
 
     public EntityRenderer entityRenderer;
+    public GuiRenderer guiRenderer;
 
     public static void init() {
         INSTANCE = new VulkanManager();
@@ -36,7 +38,6 @@ public class VulkanManager {
         vkDestroyDescriptorSetLayout(Variables.device, DescriptorManager.descriptorSetLayout, null);
 
         Variables.inFlightFrames.forEach(frame -> {
-
             vkDestroySemaphore(Variables.device, frame.renderFinishedSemaphore(), null);
             vkDestroySemaphore(Variables.device, frame.imageAvailableSemaphore(), null);
             vkDestroyFence(Variables.device, frame.fence(), null);
@@ -56,6 +57,7 @@ public class VulkanManager {
 
     public void createRenderers() {
         entityRenderer = new EntityRenderer();
+        guiRenderer = new GuiRenderer();
         Variables.renderManager.addRenderer(entityRenderer);
     }
 

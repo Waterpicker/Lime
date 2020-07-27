@@ -7,7 +7,7 @@ import io.github.hydos.lime.impl.vulkan.elements.TexturedVulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
 import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
-import io.github.hydos.lime.impl.vulkan.render.VKBufferMesh;
+import io.github.hydos.lime.impl.vulkan.model.VKBufferMesh;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryStack;

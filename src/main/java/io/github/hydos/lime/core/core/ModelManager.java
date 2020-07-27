@@ -1,10 +1,9 @@
 package io.github.hydos.lime.core.core;
 
 import io.github.hydos.lime.core.render.RenderObject;
-import io.github.hydos.lime.impl.vulkan.elements.TexturedVulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
-import io.github.hydos.lime.impl.vulkan.render.VKTextureManager;
+import io.github.hydos.lime.impl.vulkan.texture.VKTextureManager;
 import org.joml.Vector3f;
 
 import java.io.File;

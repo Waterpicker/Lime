@@ -1,4 +1,4 @@
-package io.github.hydos.lime.impl.vulkan.render;
+package io.github.hydos.lime.impl.vulkan.texture;
 
 import io.github.hydos.lime.core.math.CitrusMath;
 import io.github.hydos.lime.impl.vulkan.Variables;
@@ -6,7 +6,6 @@ import io.github.hydos.lime.impl.vulkan.elements.TexturedVulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKMemoryUtils;
-import io.github.hydos.lime.impl.vulkan.texture.CompiledTexture;
 import io.github.hydos.lime.impl.vulkan.util.ImageUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -29,9 +28,9 @@ import static org.lwjgl.vulkan.VK10.*;
 public class VKTextureManager {
 
     public static List<CompiledTexture> compiledTextures = new ArrayList<>();
-    
+
     public static TexturedVulkanRenderObject textureModel(String path, VulkanRenderObject object) {
-        if(checkForExistingCompiledTexture(path)){
+        if (checkForExistingCompiledTexture(path)) {
             return new TexturedVulkanRenderObject(object, getExistingTexture(path));
         }
         try (MemoryStack stack = stackPush()) {
@@ -109,8 +108,8 @@ public class VKTextureManager {
     }
 
     private static CompiledTexture getExistingTexture(String path) {
-        for(CompiledTexture texture : compiledTextures){
-            if(texture.path.equals(path)){
+        for (CompiledTexture texture : compiledTextures) {
+            if (texture.path.equals(path)) {
                 return texture;
             }
         }
@@ -118,8 +117,8 @@ public class VKTextureManager {
     }
 
     private static boolean checkForExistingCompiledTexture(String path) {
-        for(CompiledTexture texture : compiledTextures){
-            if(texture.path.equals(path)){
+        for (CompiledTexture texture : compiledTextures) {
+            if (texture.path.equals(path)) {
                 return true;
             }
         }
@@ -157,6 +156,84 @@ public class VKTextureManager {
             }
 
             texture.textureSampler = pTextureSampler.get(0);
+        }
+    }
+
+    public static CompiledTexture getCompiledTexture(String imagePath) {
+        if (checkForExistingCompiledTexture(imagePath)) {
+            return getExistingTexture(imagePath);
+        }
+        try (MemoryStack stack = stackPush()) {
+            CompiledTexture compiledTexture = new CompiledTexture();
+            compiledTexture.path = imagePath;
+            String filename = Paths.get(new URI(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource(imagePath)).toExternalForm())).toString();
+
+            IntBuffer pWidth = stack.mallocInt(1);
+            IntBuffer pHeight = stack.mallocInt(1);
+            IntBuffer pChannels = stack.mallocInt(1);
+
+            ByteBuffer pixels = stbi_load(filename, pWidth, pHeight, pChannels, STBI_rgb_alpha);
+
+            long imageSize = pWidth.get(0) * pHeight.get(0) * 4; // pChannels.get(0);
+
+            compiledTexture.mipLevels = (int) Math.floor(CitrusMath.log2(Math.max(pWidth.get(0), pHeight.get(0)))) + 1;
+
+            if (pixels == null) {
+                throw new RuntimeException("Failed to load texture image " + filename);
+            }
+
+            LongBuffer pStagingBuffer = stack.mallocLong(1);
+            LongBuffer pStagingBufferMemory = stack.mallocLong(1);
+            VKBufferUtils.createBuffer(imageSize,
+                    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                    pStagingBuffer,
+                    pStagingBufferMemory);
+
+
+            PointerBuffer data = stack.mallocPointer(1);
+            vkMapMemory(Variables.device, pStagingBufferMemory.get(0), 0, imageSize, 0, data);
+            {
+                VKMemoryUtils.memcpy(data.getByteBuffer(0, (int) imageSize), pixels, imageSize);
+            }
+            vkUnmapMemory(Variables.device, pStagingBufferMemory.get(0));
+
+            stbi_image_free(pixels);
+
+            LongBuffer pTextureImage = stack.mallocLong(1);
+            LongBuffer pTextureImageMemory = stack.mallocLong(1);
+            ImageUtils.createImage(pWidth.get(0), pHeight.get(0),
+                    compiledTexture.mipLevels,
+                    VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+                    VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                    pTextureImage,
+                    pTextureImageMemory);
+
+            compiledTexture.textureImage = pTextureImage.get(0);
+            compiledTexture.textureImageMemory = pTextureImageMemory.get(0);
+
+            ImageUtils.transitionImageLayout(compiledTexture.textureImage,
+                    VK_FORMAT_R8G8B8A8_SRGB,
+                    VK_IMAGE_LAYOUT_UNDEFINED,
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    compiledTexture.mipLevels);
+
+            ImageUtils.copyBufferToImage(pStagingBuffer.get(0), compiledTexture.textureImage, pWidth.get(0), pHeight.get(0));
+
+            // Transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
+            ImageUtils.generateMipmaps(compiledTexture.textureImage, VK_FORMAT_R8G8B8A8_SRGB, pWidth.get(0), pHeight.get(0), compiledTexture.mipLevels);
+
+            vkDestroyBuffer(Variables.device, pStagingBuffer.get(0), null);
+            vkFreeMemory(Variables.device, pStagingBufferMemory.get(0), null);
+
+            compiledTextures.add(compiledTexture);
+            VKTextureManager.createTextureImageView(compiledTexture);
+            VKTextureManager.createTextureSampler(compiledTexture);
+            return compiledTexture;
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

@@ -1,4 +1,4 @@
-package io.github.hydos.lime.impl.vulkan.render;
+package io.github.hydos.lime.impl.vulkan.model;
 
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
