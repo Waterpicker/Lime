@@ -1,27 +1,60 @@
 package io.github.hydos.lime.impl.vulkan.model;
 
+import io.github.hydos.lime.resource.Resource;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.*;
+import org.lwjgl.system.MemoryUtil;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
-import static org.lwjgl.assimp.Assimp.aiGetErrorString;
-import static org.lwjgl.assimp.Assimp.aiImportFile;
 
 public class VKModelLoader {
 
-    public static VKMesh loadModel(File file, int flags) {
-        try (AIScene scene = aiImportFile(file.getAbsolutePath(), flags)) {
+    private static AIFileIO createResourceIO(ByteBuffer data) {
+        AIFileIO fileIo = AIFileIO.create();
+
+        fileIo.set((pFileIO, fileName, openMode) -> {
+            AIFile file = AIFile.create();
+
+            file.ReadProc((pFile, pBuffer, size, count) -> {
+                long max = Math.min(data.remaining(), size * count);
+                MemoryUtil.memCopy(MemoryUtil.memAddress(data), pBuffer, max);
+                return max;
+            });
+
+            file.SeekProc((pFile, offset, origin) -> {
+                if (origin == Assimp.aiOrigin_CUR) {
+                    data.position(data.position() + (int) offset);
+                } else if (origin == Assimp.aiOrigin_SET) {
+                    data.position((int) offset);
+                } else if (origin == Assimp.aiOrigin_END) {
+                    data.position(data.limit() + (int) offset);
+                }
+
+                return 0;
+            });
+
+            file.FileSizeProc(pFile -> data.limit());
+
+            return file.address();
+        }, (pFileIO, pFile) -> {}, MemoryUtil.NULL);
+
+        return fileIo;
+    }
+
+    public static VKMesh loadModel(Resource file, int flags) throws IOException {
+        try (AIScene scene = Assimp.aiImportFileEx(file.getIdentifier().toString(), flags, createResourceIO(file.readIntoBuffer(true)))) {
             if (scene == null || scene.mRootNode() == null) {
-                throw new RuntimeException("Could not load model: " + aiGetErrorString());
+                throw new RuntimeException("Could not load model: " + Assimp.aiGetErrorString());
             }
 
             VKMesh model = new VKMesh();
