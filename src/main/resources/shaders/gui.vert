@@ -3,16 +3,14 @@
 
 layout(push_constant) uniform PushConstant {
     int[] constants;
-    //0 = entity.id which is the model index in the model list
+    //0 = element.id which is the model index in the model list
 } pc;
 
 layout(binding = 0) uniform UniformBufferObject {
     mat4[10] model;
-    mat4 view;
-    mat4 proj;
 } ubo;
 
-layout(location = 0) in vec3 inPosition;
+layout(location = 0) in vec2 inPosition;
 layout(location = 1) in vec3 inColor;
 layout(location = 2) in vec2 inTexCoord;
 
@@ -20,7 +18,7 @@ layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
 
 void main() {
-    gl_Position = ubo.proj * ubo.view * ubo.model[pc.constants[0]] * vec4(inPosition, 1.0);
+    gl_Position = ubo.model[pc.constants[0]] * vec4(inPosition, 0.0, 1.0);
     fragColor = inColor;
-    fragTexCoord = inTexCoord;
+    fragTexCoord = vec2((fragTexCoord.x+1.0)/2.0, 1 - (fragTexCoord.y+1.0)/2.0); //flips the uv's i think
 }

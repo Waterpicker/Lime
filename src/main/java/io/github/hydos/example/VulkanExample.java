@@ -4,6 +4,7 @@ import io.github.hydos.lime.core.core.ModelManager;
 import io.github.hydos.lime.core.io.Window;
 import io.github.hydos.lime.core.player.PlayerController;
 import io.github.hydos.lime.core.render.RenderObject;
+import io.github.hydos.lime.core.ui.GuiManager;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import io.github.hydos.lime.impl.vulkan.VulkanReg;
@@ -14,6 +15,7 @@ import io.github.hydos.lime.impl.vulkan.render.Frame;
 import io.github.hydos.lime.impl.vulkan.swapchain.SwapchainManager;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
 import io.github.hydos.lime.impl.vulkan.util.Utils;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.io.File;
@@ -49,6 +51,7 @@ public class VulkanExample {
 
         VulkanManager.getInstance().entityRenderer.processEntity(chalet);
         VulkanManager.getInstance().entityRenderer.processEntity(dragon);
+        GuiManager.createUiElement(new Vector2f(0.5f, 0.5f), new Vector2f(1,1), "textures/skybox/back.png");
     }
 
     private void initWindow() {

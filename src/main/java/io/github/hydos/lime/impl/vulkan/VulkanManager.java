@@ -60,6 +60,7 @@ public class VulkanManager {
         entityRenderer = new EntityRenderer();
         guiRenderer = new GuiRenderer();
         Variables.renderManager.addRenderer(entityRenderer);
+        Variables.renderManager.addRenderer(guiRenderer);
     }
 
     public void cleanup() {

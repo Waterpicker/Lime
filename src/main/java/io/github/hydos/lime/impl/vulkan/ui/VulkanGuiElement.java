@@ -10,10 +10,14 @@ public class VulkanGuiElement extends GuiElement {
 
     public CompiledTexture texture;
 
+    private static int lastRegistedId = 0;
+
     public VulkanGuiElement(Vector2f positon, Vector2f scale, CompiledTexture texture){
         this.position = positon;
         this.scale = scale;
         this.texture = texture;
+        this.id = lastRegistedId;
+        VulkanGuiElement.lastRegistedId++;
     }
 
     @Override

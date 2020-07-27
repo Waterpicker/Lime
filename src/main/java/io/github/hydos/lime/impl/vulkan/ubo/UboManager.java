@@ -23,7 +23,7 @@ public class UboManager {
     static final int mat4Size = 16 * Float.BYTES;
     static final int modelArraySize = mat4Size * 10; //FIXME: also hardcoded
 
-    public static void createUniformBuffers() {
+    public static void createObjectUniformBuffers() {
         try (MemoryStack stack = stackPush()) {
             Variables.uniformBuffers = new ArrayList<>(Variables.swapChainImages.size());
             Variables.uniformBuffersMemory = new ArrayList<>(Variables.swapChainImages.size());
@@ -61,7 +61,7 @@ public class UboManager {
 
     public static void updateUniformBuffers(int currentImage) {
         try (MemoryStack stack = stackPush()) {
-            GenericUbo ubo = new GenericUbo();
+            GenericUbo ubo = new GenericUbo(10);
 
             for (VulkanRenderObject object : VulkanManager.getInstance().entityRenderer.entities) {
                 ubo.model[object.id] = CitrusMath.createTransformationMatrix(object.getPosition(), object.getRotX(), object.getRotY(), object.getRotZ(), object.getScale());
@@ -89,8 +89,8 @@ public class UboManager {
         public Matrix4f view;
         public Matrix4f proj;
 
-        public GenericUbo() {
-            model = new Matrix4f[10]; //TMP: 10 object cap? FIXME
+        public GenericUbo(int maxModelCount) {
+            model = new Matrix4f[maxModelCount]; //TMP: 10 object cap? FIXME
             view = new Matrix4f();
             proj = new Matrix4f();
         }

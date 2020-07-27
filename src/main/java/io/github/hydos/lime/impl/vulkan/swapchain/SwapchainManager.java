@@ -210,11 +210,10 @@ public class SwapchainManager {
         for (Renderer renderer : VKRenderManager.getInstance().renderers) {
             renderer.createShader();
         }
-        //TODO: loop through all renderers and create shaders
         ImageUtils.createColorResources();
         ImageUtils.createDepthResources();
         Utils.createFramebuffers();
-        UboManager.createUniformBuffers();
+        UboManager.createObjectUniformBuffers();
         DescriptorManager.createDescriptorPool();
         DescriptorManager.createDescriptorSets(VKTextureManager.compiledTextures);
         CommandBufferManager.createCommandBuffers();

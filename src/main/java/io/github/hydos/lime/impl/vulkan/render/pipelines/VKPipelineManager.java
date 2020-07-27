@@ -17,10 +17,10 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class VKPipelineManager {
 
-    public static long createGraphicsPipeline() {
+    public static long createGraphicsPipeline(String path) {
         try (MemoryStack stack = stackPush()) {
-            VKShaderUtils.SPIRV vertShaderSPIRV = VKShaderUtils.compileShaderFile("shaders/entity.vert", VKShaderUtils.ShaderType.VERTEX_SHADER);
-            VKShaderUtils.SPIRV fragShaderSPIRV = VKShaderUtils.compileShaderFile("shaders/entity.frag", VKShaderUtils.ShaderType.FRAGMENT_SHADER);
+            VKShaderUtils.SPIRV vertShaderSPIRV = VKShaderUtils.compileShaderFile(path + ".vert", VKShaderUtils.ShaderType.VERTEX_SHADER);
+            VKShaderUtils.SPIRV fragShaderSPIRV = VKShaderUtils.compileShaderFile(path + ".frag", VKShaderUtils.ShaderType.FRAGMENT_SHADER);
 
             long vertShaderModule = VKShaderManager.createShaderModule(vertShaderSPIRV.bytecode());
             long fragShaderModule = VKShaderManager.createShaderModule(fragShaderSPIRV.bytecode());
@@ -44,21 +44,18 @@ public class VKPipelineManager {
             fragShaderStageInfo.pName(entryPoint);
 
             // VERTEX STAGE
-
             VkPipelineVertexInputStateCreateInfo vertexInputInfo = VkPipelineVertexInputStateCreateInfo.callocStack(stack);
             vertexInputInfo.sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO);
             vertexInputInfo.pVertexBindingDescriptions(VKVertex.getBindingDescription());
             vertexInputInfo.pVertexAttributeDescriptions(VKVertex.getAttributeDescriptions());
 
             // ASSEMBLY STAGE
-
             VkPipelineInputAssemblyStateCreateInfo inputAssembly = VkPipelineInputAssemblyStateCreateInfo.callocStack(stack);
             inputAssembly.sType(VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO);
             inputAssembly.topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
             inputAssembly.primitiveRestartEnable(false);
 
             // VIEWPORT & SCISSOR
-
             VkViewport.Buffer viewport = VkViewport.callocStack(1, stack);
             viewport.x(0.0f);
             viewport.y(0.0f);
@@ -77,7 +74,6 @@ public class VKPipelineManager {
             viewportState.pScissors(scissor);
 
             // RASTERIZATION STAGE
-
             VkPipelineRasterizationStateCreateInfo rasterizer = VkPipelineRasterizationStateCreateInfo.callocStack(stack);
             rasterizer.sType(VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO);
             rasterizer.depthClampEnable(false);
@@ -89,7 +85,6 @@ public class VKPipelineManager {
             rasterizer.depthBiasEnable(false);
 
             // MULTISAMPLING
-
             VkPipelineMultisampleStateCreateInfo multisampling = VkPipelineMultisampleStateCreateInfo.callocStack(stack);
             multisampling.sType(VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO);
             multisampling.sampleShadingEnable(true);
@@ -107,7 +102,6 @@ public class VKPipelineManager {
             depthStencil.stencilTestEnable(false);
 
             // COLOR BLENDING
-
             VkPipelineColorBlendAttachmentState.Buffer colorBlendAttachment = VkPipelineColorBlendAttachmentState.callocStack(1, stack);
             colorBlendAttachment.colorWriteMask(VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT);
             colorBlendAttachment.blendEnable(false);
@@ -120,7 +114,6 @@ public class VKPipelineManager {
             colorBlending.blendConstants(stack.floats(0.0f, 0.0f, 0.0f, 0.0f));
 
             // PIPELINE LAYOUT CREATION
-
             VkPipelineLayoutCreateInfo pipelineLayoutInfo = VkPipelineLayoutCreateInfo.callocStack(stack);
             pipelineLayoutInfo.sType(VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO);
             pipelineLayoutInfo.pSetLayouts(stack.longs(DescriptorManager.descriptorSetLayout));

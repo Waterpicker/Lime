@@ -90,6 +90,6 @@ public class EntityRenderer extends Renderer {
 
     @Override
     public void createShader() {
-        graphicsPipeline = VKPipelineManager.createGraphicsPipeline();
+        graphicsPipeline = VKPipelineManager.createGraphicsPipeline("shaders/entity");
     }
 }

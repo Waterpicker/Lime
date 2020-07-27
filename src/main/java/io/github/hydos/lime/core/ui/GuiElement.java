@@ -7,6 +7,7 @@ public abstract class GuiElement {
     public Vector2f position;
     public Vector2f scale;
     public boolean hidden;
+    public int id;
 
     public abstract VKBufferMesh getQuad();
 }
