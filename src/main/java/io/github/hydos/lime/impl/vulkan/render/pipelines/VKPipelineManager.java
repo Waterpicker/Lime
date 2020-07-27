@@ -1,6 +1,7 @@
 package io.github.hydos.lime.impl.vulkan.render.pipelines;
 
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 import io.github.hydos.lime.impl.vulkan.shaders.VKShaderManager;
 import io.github.hydos.lime.impl.vulkan.shaders.VKShaderUtils;
@@ -126,9 +127,7 @@ public class VKPipelineManager {
 
             LongBuffer pPipelineLayout = stack.longs(VK_NULL_HANDLE);
 
-            if (vkCreatePipelineLayout(Variables.device, pipelineLayoutInfo, null, pPipelineLayout) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create pipeline layout");
-            }
+            VulkanError.failIfError(vkCreatePipelineLayout(Variables.device, pipelineLayoutInfo, null, pPipelineLayout));
 
             Variables.pipelineLayout = pPipelineLayout.get(0);
 
@@ -150,9 +149,7 @@ public class VKPipelineManager {
 
             LongBuffer pGraphicsPipeline = stack.mallocLong(1);
 
-            if (vkCreateGraphicsPipelines(Variables.device, VK_NULL_HANDLE, pipelineInfo, null, pGraphicsPipeline) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create graphics pipeline");
-            }
+            VulkanError.failIfError(vkCreateGraphicsPipelines(Variables.device, VK_NULL_HANDLE, pipelineInfo, null, pGraphicsPipeline));
 
             // Cleanup
 

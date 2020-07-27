@@ -17,5 +17,6 @@ public class CompiledTexture {
         this.textureSampler = textureSampler;
     }
 
-    public CompiledTexture() {}
+    public CompiledTexture() {
+    }
 }

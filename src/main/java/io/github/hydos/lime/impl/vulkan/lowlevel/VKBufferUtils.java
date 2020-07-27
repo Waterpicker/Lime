@@ -1,10 +1,10 @@
 package io.github.hydos.lime.impl.vulkan.lowlevel;
 
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 import io.github.hydos.lime.impl.vulkan.render.VKBufferMesh;
-import io.github.hydos.lime.impl.vulkan.util.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -26,9 +26,7 @@ public class VKBufferUtils {
             bufferInfo.usage(usage);
             bufferInfo.sharingMode(VK_SHARING_MODE_EXCLUSIVE);
 
-            if (VK10.vkCreateBuffer(Variables.device, bufferInfo, null, pBuffer) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create buffer");
-            }
+            VulkanError.failIfError(VK10.vkCreateBuffer(Variables.device, bufferInfo, null, pBuffer));
 
             VkMemoryRequirements memRequirements = VkMemoryRequirements.mallocStack(stack);
             vkGetBufferMemoryRequirements(Variables.device, pBuffer.get(0), memRequirements);
@@ -38,9 +36,7 @@ public class VKBufferUtils {
             allocInfo.allocationSize(memRequirements.size());
             allocInfo.memoryTypeIndex(VKMemoryUtils.findMemoryType(memRequirements.memoryTypeBits(), properties));
 
-            if (vkAllocateMemory(Variables.device, allocInfo, null, pBufferMemory) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to allocate buffer memory");
-            }
+            VulkanError.failIfError(vkAllocateMemory(Variables.device, allocInfo, null, pBufferMemory));
 
             vkBindBufferMemory(Variables.device, pBuffer.get(0), pBufferMemory.get(0), 0);
         }

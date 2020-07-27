@@ -1,6 +1,7 @@
 package io.github.hydos.lime.impl.vulkan.shaders;
 
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkShaderModuleCreateInfo;
@@ -10,7 +11,6 @@ import java.nio.LongBuffer;
 
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-import static org.lwjgl.vulkan.VK10.VK_SUCCESS;
 
 /**
  * will be used in the future to manage multiple shaders
@@ -27,13 +27,9 @@ public class VKShaderManager {
 
             LongBuffer pShaderModule = stack.mallocLong(1);
 
-            if (VK10.vkCreateShaderModule(Variables.device, createInfo, null, pShaderModule) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create shader module");
-            }
+            VulkanError.failIfError(VK10.vkCreateShaderModule(Variables.device, createInfo, null, pShaderModule));
 
             return pShaderModule.get(0);
         }
     }
-
-
 }

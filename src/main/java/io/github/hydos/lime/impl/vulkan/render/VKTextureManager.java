@@ -2,6 +2,7 @@ package io.github.hydos.lime.impl.vulkan.render;
 
 import io.github.hydos.lime.core.math.CitrusMath;
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.elements.TexturedVulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
@@ -29,9 +30,9 @@ import static org.lwjgl.vulkan.VK10.*;
 public class VKTextureManager {
 
     public static List<CompiledTexture> compiledTextures = new ArrayList<>();
-    
+
     public static TexturedVulkanRenderObject textureModel(String path, VulkanRenderObject object) {
-        if(checkForExistingCompiledTexture(path)){
+        if (checkForExistingCompiledTexture(path)) {
             return new TexturedVulkanRenderObject(object, getExistingTexture(path));
         }
         try (MemoryStack stack = stackPush()) {
@@ -109,8 +110,8 @@ public class VKTextureManager {
     }
 
     private static CompiledTexture getExistingTexture(String path) {
-        for(CompiledTexture texture : compiledTextures){
-            if(texture.path.equals(path)){
+        for (CompiledTexture texture : compiledTextures) {
+            if (texture.path.equals(path)) {
                 return texture;
             }
         }
@@ -118,8 +119,8 @@ public class VKTextureManager {
     }
 
     private static boolean checkForExistingCompiledTexture(String path) {
-        for(CompiledTexture texture : compiledTextures){
-            if(texture.path.equals(path)){
+        for (CompiledTexture texture : compiledTextures) {
+            if (texture.path.equals(path)) {
                 return true;
             }
         }
@@ -152,9 +153,7 @@ public class VKTextureManager {
 
             LongBuffer pTextureSampler = stack.mallocLong(1);
 
-            if (vkCreateSampler(Variables.device, samplerInfo, null, pTextureSampler) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create texture sampler");
-            }
+            VulkanError.failIfError(vkCreateSampler(Variables.device, samplerInfo, null, pTextureSampler));
 
             texture.textureSampler = pTextureSampler.get(0);
         }

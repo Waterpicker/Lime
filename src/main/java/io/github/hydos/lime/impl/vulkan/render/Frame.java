@@ -1,6 +1,7 @@
 package io.github.hydos.lime.impl.vulkan.render;
 
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.swapchain.SwapchainManager;
 import io.github.hydos.lime.impl.vulkan.ubo.UboManager;
 import org.lwjgl.system.MemoryStack;
@@ -95,7 +96,7 @@ public class Frame {
                 Variables.framebufferResize = false;
                 SwapchainManager.recreateSwapChain();
             } else if (vkResult != VK_SUCCESS) {
-                throw new RuntimeException("Failed to present swap chain image");
+                VulkanError.failIfError(vkResult);
             }
 
             Variables.currentFrame = (Variables.currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
