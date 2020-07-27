@@ -1,5 +1,7 @@
 package io.github.hydos.lime.impl.vulkan.texture;
 
+import io.github.hydos.lime.resource.Identifier;
+
 public class CompiledTexture {
 
     public int mipLevels;
@@ -7,7 +9,7 @@ public class CompiledTexture {
     public long textureImageMemory;
     public long textureImageView;
     public long textureSampler;
-    public String path;
+    public Identifier path;
 
     public CompiledTexture(int mipLevels, long textureImage, long textureImageMemory, long textureImageView, long textureSampler) {
         this.mipLevels = mipLevels;

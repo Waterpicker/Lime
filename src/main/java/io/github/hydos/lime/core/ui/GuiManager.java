@@ -2,8 +2,10 @@ package io.github.hydos.lime.core.ui;
 
 import io.github.hydos.lime.impl.vulkan.texture.VKTextureManager;
 import io.github.hydos.lime.impl.vulkan.ui.VulkanGuiElement;
+import io.github.hydos.lime.resource.Resource;
 import org.joml.Vector2f;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +21,7 @@ public class GuiManager {
         elements.remove(element);
     }
 
-    public static GuiElement createUiElement(Vector2f position, Vector2f scale, String imagePath) {
+    public static GuiElement createUiElement(Vector2f position, Vector2f scale, Resource imagePath) throws IOException {
         return new VulkanGuiElement(position, scale, VKTextureManager.getCompiledTexture(imagePath));
     }
 

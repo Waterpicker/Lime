@@ -8,19 +8,18 @@ import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
 import io.github.hydos.lime.impl.vulkan.lowlevel.VKMemoryUtils;
 import io.github.hydos.lime.impl.vulkan.util.ImageUtils;
+import io.github.hydos.lime.resource.Identifier;
+import io.github.hydos.lime.resource.Resource;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkSamplerCreateInfo;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static org.lwjgl.stb.STBImage.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
@@ -30,28 +29,27 @@ public class VKTextureManager {
 
     public static List<CompiledTexture> compiledTextures = new ArrayList<>();
 
-    public static TexturedVulkanRenderObject textureModel(String path, VulkanRenderObject object) {
-        if (checkForExistingCompiledTexture(path)) {
-            return new TexturedVulkanRenderObject(object, getExistingTexture(path));
+    public static TexturedVulkanRenderObject textureModel(Resource texture, VulkanRenderObject object) throws IOException {
+        if (checkForExistingCompiledTexture(texture.getIdentifier())) {
+            return new TexturedVulkanRenderObject(object, getExistingTexture(texture.getIdentifier()));
         }
 
         try (MemoryStack stack = stackPush()) {
             CompiledTexture compiledTexture = new CompiledTexture();
-            compiledTexture.path = path;
-            String filename = Paths.get(new URI(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource(path)).toExternalForm())).toString();
+            compiledTexture.path = texture.getIdentifier();
 
             IntBuffer pWidth = stack.mallocInt(1);
             IntBuffer pHeight = stack.mallocInt(1);
             IntBuffer pChannels = stack.mallocInt(1);
 
-            ByteBuffer pixels = stbi_load(filename, pWidth, pHeight, pChannels, STBI_rgb_alpha);
+            ByteBuffer pixels = stbi_load_from_memory(texture.readIntoBuffer(true), pWidth, pHeight, pChannels, STBI_rgb_alpha);
 
             long imageSize = pWidth.get(0) * pHeight.get(0) * 4; // pChannels.get(0);
 
             compiledTexture.mipLevels = (int) Math.floor(CitrusMath.log2(Math.max(pWidth.get(0), pHeight.get(0)))) + 1;
 
             if (pixels == null) {
-                throw new RuntimeException("Failed to load texture image " + filename);
+                throw new RuntimeException("Failed to load texture");
             }
 
             LongBuffer pStagingBuffer = stack.mallocLong(1);
@@ -103,13 +101,10 @@ public class VKTextureManager {
             VKTextureManager.createTextureImageView(compiledTexture);
             VKTextureManager.createTextureSampler(compiledTexture);
             return new TexturedVulkanRenderObject(object, compiledTexture);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
         }
-        return null;
     }
 
-    private static CompiledTexture getExistingTexture(String path) {
+    private static CompiledTexture getExistingTexture(Identifier path) {
         for (CompiledTexture texture : compiledTextures) {
             if (texture.path.equals(path)) {
                 return texture;
@@ -118,12 +113,13 @@ public class VKTextureManager {
         return null;
     }
 
-    private static boolean checkForExistingCompiledTexture(String path) {
+    private static boolean checkForExistingCompiledTexture(Identifier path) {
         for (CompiledTexture texture : compiledTextures) {
             if (texture.path.equals(path)) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -159,27 +155,27 @@ public class VKTextureManager {
         }
     }
 
-    public static CompiledTexture getCompiledTexture(String imagePath) {
-        if (checkForExistingCompiledTexture(imagePath)) {
-            return getExistingTexture(imagePath);
+    public static CompiledTexture getCompiledTexture(Resource texture) throws IOException {
+        if (checkForExistingCompiledTexture(texture.getIdentifier())) {
+            return getExistingTexture(texture.getIdentifier());
         }
+
         try (MemoryStack stack = stackPush()) {
             CompiledTexture compiledTexture = new CompiledTexture();
-            compiledTexture.path = imagePath;
-            String filename = Paths.get(new URI(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource(imagePath)).toExternalForm())).toString();
+            compiledTexture.path = texture.getIdentifier();
 
             IntBuffer pWidth = stack.mallocInt(1);
             IntBuffer pHeight = stack.mallocInt(1);
             IntBuffer pChannels = stack.mallocInt(1);
 
-            ByteBuffer pixels = stbi_load(filename, pWidth, pHeight, pChannels, STBI_rgb_alpha);
+            ByteBuffer pixels = stbi_load_from_memory(texture.readIntoBuffer(true), pWidth, pHeight, pChannels, STBI_rgb_alpha);
 
             long imageSize = pWidth.get(0) * pHeight.get(0) * 4; // pChannels.get(0);
 
             compiledTexture.mipLevels = (int) Math.floor(CitrusMath.log2(Math.max(pWidth.get(0), pHeight.get(0)))) + 1;
 
             if (pixels == null) {
-                throw new RuntimeException("Failed to load texture image " + filename);
+                throw new RuntimeException("Failed to load texture");
             }
 
             LongBuffer pStagingBuffer = stack.mallocLong(1);
@@ -231,9 +227,6 @@ public class VKTextureManager {
             VKTextureManager.createTextureImageView(compiledTexture);
             VKTextureManager.createTextureSampler(compiledTexture);
             return compiledTexture;
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return null;
         }
     }
 }
