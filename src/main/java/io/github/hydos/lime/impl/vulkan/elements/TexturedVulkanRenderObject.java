@@ -21,5 +21,4 @@ public class TexturedVulkanRenderObject extends VulkanRenderObject {
         this(object);
         this.texture = compiledTexture;
     }
-
 }

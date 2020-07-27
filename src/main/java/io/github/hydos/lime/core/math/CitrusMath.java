@@ -17,7 +17,8 @@ public class CitrusMath {
     public static int clamp(int min, int max, int value) {
         return java.lang.Math.max(min, java.lang.Math.min(max, value));
     }
-//
+
+    //
 //    public static Matrix4f createViewMatrix(Vector3f cameraPos, Vector3f rotation) {
 //        Matrix4f viewMatrix = new Matrix4f();
 //        viewMatrix.identity();

@@ -23,6 +23,7 @@ public class VKModelLoader {
             if (scene == null || scene.mRootNode() == null) {
                 throw new RuntimeException("Could not load model: " + aiGetErrorString());
             }
+
             VKMesh model = new VKMesh();
             processNode(requireNonNull(scene.mRootNode()), scene, model);
             return model;
@@ -33,6 +34,7 @@ public class VKModelLoader {
         if (node.mMeshes() != null) {
             processNodeMeshes(scene, node, model);
         }
+
         if (node.mChildren() != null) {
             PointerBuffer children = node.mChildren();
             for (int i = 0; i < node.mNumChildren(); i++) {
@@ -44,6 +46,7 @@ public class VKModelLoader {
     private static void processNodeMeshes(AIScene scene, AINode node, VKMesh model) {
         PointerBuffer pMeshes = scene.mMeshes();
         IntBuffer meshIndices = node.mMeshes();
+
         for (int i = 0; i < requireNonNull(meshIndices).capacity(); i++) {
             AIMesh mesh = AIMesh.create(pMeshes.get(meshIndices.get(i)));
             processMesh(mesh, model);
@@ -58,6 +61,7 @@ public class VKModelLoader {
 
     private static void processPositions(AIMesh mesh, List<Vector3fc> positions) {
         AIVector3D.Buffer vertices = requireNonNull(mesh.mVertices());
+
         for (int i = 0; i < vertices.capacity(); i++) {
             AIVector3D position = vertices.get(i);
             positions.add(new Vector3f(position.x(), position.y(), position.z()));
@@ -66,6 +70,7 @@ public class VKModelLoader {
 
     private static void processTexCoords(AIMesh mesh, List<Vector2fc> texCoords) {
         AIVector3D.Buffer aiTexCoords = requireNonNull(mesh.mTextureCoords(0));
+
         for (int i = 0; i < aiTexCoords.capacity(); i++) {
             final AIVector3D coords = aiTexCoords.get(i);
             texCoords.add(new Vector2f(coords.x(), coords.y()));
@@ -74,6 +79,7 @@ public class VKModelLoader {
 
     private static void processIndices(AIMesh mesh, List<Integer> indices) {
         AIFace.Buffer aiFaces = mesh.mFaces();
+
         for (int i = 0; i < mesh.mNumFaces(); i++) {
             AIFace face = aiFaces.get(i);
             IntBuffer pIndices = face.mIndices();

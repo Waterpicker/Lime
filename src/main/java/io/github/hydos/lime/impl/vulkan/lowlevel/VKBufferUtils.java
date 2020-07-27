@@ -17,9 +17,7 @@ import static org.lwjgl.vulkan.VK10.*;
 public class VKBufferUtils {
 
     public static void createBuffer(long size, int usage, int properties, LongBuffer pBuffer, LongBuffer pBufferMemory) {
-
         try (MemoryStack stack = stackPush()) {
-
             VkBufferCreateInfo bufferInfo = VkBufferCreateInfo.callocStack(stack);
             bufferInfo.sType(VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO);
             bufferInfo.size(size);
@@ -43,9 +41,7 @@ public class VKBufferUtils {
     }
 
     public static void copyBuffer(long srcBuffer, long dstBuffer, long size) {
-
         try (MemoryStack stack = stackPush()) {
-
             VkCommandBuffer commandBuffer = CommandBufferManager.beginSingleTimeCommands();
 
             VkBufferCopy.Buffer copyRegion = VkBufferCopy.callocStack(1, stack);
@@ -58,9 +54,7 @@ public class VKBufferUtils {
     }
 
     public static void createVertexBuffer(VKBufferMesh processedMesh) {
-
         try (MemoryStack stack = stackPush()) {
-
             long bufferSize = VKVertex.SIZEOF * processedMesh.vertices.length;
 
             LongBuffer pBuffer = stack.mallocLong(1);
@@ -100,9 +94,7 @@ public class VKBufferUtils {
     }
 
     public static void createIndexBuffer(VKBufferMesh processedMesh) {
-
         try (MemoryStack stack = stackPush()) {
-
             long bufferSize = Integer.BYTES * processedMesh.indices.length;
 
             LongBuffer pBuffer = stack.mallocLong(1);

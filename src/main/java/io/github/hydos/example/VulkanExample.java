@@ -28,15 +28,15 @@ public class VulkanExample {
     RenderObject chalet;
     RenderObject dragon;
 
-    public static void main(String[] args) {
-        new VulkanExample();
-    }
-
     public VulkanExample() {
         initWindow();
         initVulkan();
         runEngine();
         VulkanManager.getInstance().cleanup();
+    }
+
+    public static void main(String[] args) {
+        new VulkanExample();
     }
 
     private void loadModels() {

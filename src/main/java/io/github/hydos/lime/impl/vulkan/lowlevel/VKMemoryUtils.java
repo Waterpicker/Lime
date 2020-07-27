@@ -50,5 +50,4 @@ public class VKMemoryUtils {
 
         buffer.rewind();
     }
-
 }

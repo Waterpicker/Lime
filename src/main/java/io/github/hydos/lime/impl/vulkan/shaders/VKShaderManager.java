@@ -18,6 +18,7 @@ import static org.lwjgl.vulkan.VK10.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
  * @author hydos
  */
 public class VKShaderManager {
+
     public static long createShaderModule(ByteBuffer spirvCode) {
         try (MemoryStack stack = stackPush()) {
             VkShaderModuleCreateInfo createInfo = VkShaderModuleCreateInfo.callocStack(stack);

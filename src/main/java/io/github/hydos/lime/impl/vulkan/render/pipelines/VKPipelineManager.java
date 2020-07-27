@@ -162,5 +162,4 @@ public class VKPipelineManager {
             return pGraphicsPipeline.get(0);
         }
     }
-
 }

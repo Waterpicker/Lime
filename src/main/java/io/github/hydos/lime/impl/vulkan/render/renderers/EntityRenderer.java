@@ -22,6 +22,7 @@ import java.util.List;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class EntityRenderer extends Renderer {
+
     public List<TexturedVulkanRenderObject> entities;//TODO: batch rendering
 
     public long graphicsPipeline;
@@ -63,6 +64,7 @@ public class EntityRenderer extends Renderer {
     @Override
     public void VKRender(MemoryStack stack, VkCommandBuffer commandBuffer, int index) {
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
         for (TexturedVulkanRenderObject entity : entities) {
             VKBufferMesh mesh = entity.getModel();
 
@@ -84,13 +86,10 @@ public class EntityRenderer extends Renderer {
             vkCmdPushConstants(commandBuffer, Variables.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstants);
             vkCmdDrawIndexed(commandBuffer, mesh.vkMesh.indices.size(), 1, 0, 0, 0);
         }
-
     }
 
     @Override
     public void createShader() {
         graphicsPipeline = VKPipelineManager.createGraphicsPipeline();
     }
-
-
 }

@@ -9,6 +9,9 @@ public abstract class RenderObject {
     public Vector3f scale;
     public boolean visible = true;
 
+    public RenderObject() {
+    }
+
     public void x(float x) {
         this.position.x = x;
     }
@@ -19,9 +22,6 @@ public abstract class RenderObject {
 
     public void z(float z) {
         this.position.z = z;
-    }
-
-    public RenderObject() {
     }
 
     public Vector3f getPosition() {

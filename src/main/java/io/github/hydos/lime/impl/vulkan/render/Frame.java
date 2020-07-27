@@ -37,7 +37,6 @@ public class Frame {
 
     public static void drawFrame() {
         try (MemoryStack stack = stackPush()) {
-
             Frame thisFrame = Variables.inFlightFrames.get(Variables.currentFrame);
 
             vkWaitForFences(Variables.device, thisFrame.pFence(), true, UINT64_MAX);
@@ -54,6 +53,7 @@ public class Frame {
 
             final int imageIndex = pImageIndex.get(0);
             Variables.currentImageIndex = imageIndex;
+
             if (Variables.imagesInFlight.containsKey(imageIndex)) {
                 vkWaitForFences(Variables.device, Variables.imagesInFlight.get(imageIndex).fence(), true, UINT64_MAX);
                 UboManager.updateUniformBuffers(Variables.currentImageIndex);
@@ -126,5 +126,4 @@ public class Frame {
     public LongBuffer pFence() {
         return stackGet().longs(fence);
     }
-
 }

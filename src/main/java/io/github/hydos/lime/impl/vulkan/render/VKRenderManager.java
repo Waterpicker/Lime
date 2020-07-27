@@ -21,6 +21,7 @@ import static org.lwjgl.vulkan.VK10.*;
  * @author hydos
  */
 public class VKRenderManager {
+
     private static VKRenderManager instance;
     public List<Renderer> renderers;
 
