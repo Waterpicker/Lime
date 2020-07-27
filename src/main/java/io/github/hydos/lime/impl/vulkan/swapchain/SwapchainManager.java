@@ -2,12 +2,14 @@ package io.github.hydos.lime.impl.vulkan.swapchain;
 
 import io.github.hydos.lime.core.io.Window;
 import io.github.hydos.lime.core.math.CitrusMath;
+import io.github.hydos.lime.core.render.Renderer;
 import io.github.hydos.lime.impl.vulkan.Variables;
-import io.github.hydos.lime.impl.vulkan.VulkanError;
+import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
 import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
 import io.github.hydos.lime.impl.vulkan.render.VKRenderManager;
 import io.github.hydos.lime.impl.vulkan.render.VKTextureManager;
+import io.github.hydos.lime.impl.vulkan.render.pipelines.VKPipelineManager;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
 import io.github.hydos.lime.impl.vulkan.ubo.UboManager;
 import io.github.hydos.lime.impl.vulkan.util.ImageUtils;
@@ -29,6 +31,12 @@ import static org.lwjgl.vulkan.KHRSwapchain.*;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class SwapchainManager {
+    
+    public static class SwapChainSupportDetails {
+        public VkSurfaceCapabilitiesKHR capabilities;
+        public VkSurfaceFormatKHR.Buffer formats;
+        public IntBuffer presentModes;
+    }
 
     public static void cleanupSwapChain() {
         vkDestroyImageView(Variables.device, Variables.colorImageView, null);
@@ -48,6 +56,7 @@ public class SwapchainManager {
         Variables.swapChainImageViews.forEach(imageView -> vkDestroyImageView(Variables.device, imageView, null));
         vkDestroySwapchainKHR(Variables.device, Variables.swapChain, null);
     }
+
 
     public static VkSurfaceFormatKHR chooseSwapSurfaceFormat(VkSurfaceFormatKHR.Buffer availableFormats) {
         return availableFormats.stream()
@@ -183,7 +192,9 @@ public class SwapchainManager {
 
             LongBuffer pSwapChain = stack.longs(VK_NULL_HANDLE);
 
-            VulkanError.failIfError(vkCreateSwapchainKHR(Variables.device, createInfo, null, pSwapChain));
+            if (vkCreateSwapchainKHR(Variables.device, createInfo, null, pSwapChain) != VK_SUCCESS) {
+                throw new RuntimeException("Failed to create swap chain");
+            }
 
             Variables.swapChain = pSwapChain.get(0);
 
@@ -204,6 +215,7 @@ public class SwapchainManager {
         }
     }
 
+
     /**
      * creates objects in the swap chain such as the render pass, pipeline, resources, framebuffers, ubos, etc
      */
@@ -211,6 +223,9 @@ public class SwapchainManager {
         createSwapChain();
         ImageUtils.createImageViews();
         VKRenderManager.createRenderPass();
+        for(Renderer renderer : VKRenderManager.getInstance().renderers){
+            renderer.createShader();
+        }
         //TODO: loop through all renderers and create shaders
         ImageUtils.createColorResources();
         ImageUtils.createDepthResources();
@@ -219,12 +234,6 @@ public class SwapchainManager {
         DescriptorManager.createDescriptorPool();
         DescriptorManager.createDescriptorSets(VKTextureManager.compiledTextures);
         CommandBufferManager.createCommandBuffers();
-    }
-
-    public static class SwapChainSupportDetails {
-        public VkSurfaceCapabilitiesKHR capabilities;
-        public VkSurfaceFormatKHR.Buffer formats;
-        public IntBuffer presentModes;
     }
 
 }

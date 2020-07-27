@@ -122,18 +122,7 @@ public class VKRenderManager {
     }
 
     public void addRenderer(Renderer renderer) {
-        if (renderers == null || renderers.size() == 0) {
-            renderers = new ArrayList<>();
-            renderers.add(renderer);
-        } else {
-            for (int i = 0; i < renderers.size(); i++) {
-                Renderer r = renderers.get(i);
-                if (r.priority < renderer.priority) {
-                    renderers.add(i, renderer);
-                    return;
-                }
-            }
-        }
+        renderers.add(renderer);
     }
 
     public void render(MemoryStack stack, VkCommandBuffer commandBuffer, int index) {
