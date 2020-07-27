@@ -48,5 +48,10 @@ public class GuiRenderer extends Renderer {
 
     }
 
+    @Override
+    public void createShader() {
+        //TODO: load gui shader
+    }
+
 
 }

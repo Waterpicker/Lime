@@ -8,7 +8,7 @@ import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
 import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
 import io.github.hydos.lime.impl.vulkan.render.VKRenderManager;
-import io.github.hydos.lime.impl.vulkan.render.VKTextureManager;
+import io.github.hydos.lime.impl.vulkan.texture.VKTextureManager;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
 import io.github.hydos.lime.impl.vulkan.ubo.UboManager;
 import io.github.hydos.lime.impl.vulkan.util.ImageUtils;
