@@ -16,7 +16,7 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class VKPipelineManager {
 
-    public static void createGraphicsPipeline() {
+    public static long createGraphicsPipeline() {
         try (MemoryStack stack = stackPush()) {
             VKShaderUtils.SPIRV vertShaderSPIRV = VKShaderUtils.compileShaderFile("shaders/entity.vert", VKShaderUtils.ShaderType.VERTEX_SHADER);
             VKShaderUtils.SPIRV fragShaderSPIRV = VKShaderUtils.compileShaderFile("shaders/entity.frag", VKShaderUtils.ShaderType.FRAGMENT_SHADER);
@@ -154,8 +154,6 @@ public class VKPipelineManager {
                 throw new RuntimeException("Failed to create graphics pipeline");
             }
 
-            Variables.graphicsPipeline = pGraphicsPipeline.get(0);
-
             // Cleanup
 
             vkDestroyShaderModule(Variables.device, vertShaderModule, null);
@@ -163,6 +161,8 @@ public class VKPipelineManager {
 
             vertShaderSPIRV.free();
             fragShaderSPIRV.free();
+
+            return pGraphicsPipeline.get(0);
         }
     }
 

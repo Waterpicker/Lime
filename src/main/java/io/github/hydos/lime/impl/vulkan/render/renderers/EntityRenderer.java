@@ -8,6 +8,7 @@ import io.github.hydos.lime.impl.vulkan.lowlevel.VKBufferUtils;
 import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 import io.github.hydos.lime.impl.vulkan.render.VKBufferMesh;
+import io.github.hydos.lime.impl.vulkan.render.pipelines.VKPipelineManager;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryStack;
@@ -23,8 +24,11 @@ import static org.lwjgl.vulkan.VK10.*;
 public class EntityRenderer extends Renderer {
     public List<TexturedVulkanRenderObject> entities;//TODO: batch rendering
 
+    public long graphicsPipeline;
+
     public EntityRenderer() {
         entities = new ArrayList<>();
+        graphicsPipeline = VKPipelineManager.createGraphicsPipeline();
     }
 
     public void processEntity(RenderObject entity) {
@@ -59,7 +63,7 @@ public class EntityRenderer extends Renderer {
 
     @Override
     public void VKRender(MemoryStack stack, VkCommandBuffer commandBuffer, int index) {
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, Variables.graphicsPipeline);
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
         for (TexturedVulkanRenderObject entity : entities) {
             VKBufferMesh mesh = entity.getModel();
 

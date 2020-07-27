@@ -48,7 +48,7 @@ public class SwapchainManager {
         vkDestroyDescriptorPool(Variables.device, DescriptorManager.descriptorPool, null);
         Variables.swapChainFramebuffers.forEach(framebuffer -> vkDestroyFramebuffer(Variables.device, framebuffer, null));
         vkFreeCommandBuffers(Variables.device, Variables.commandPool, Utils.asPointerBuffer(Variables.commandBuffers));
-        vkDestroyPipeline(Variables.device, Variables.graphicsPipeline, null);
+//        vkDestroyPipeline(Variables.device, Variables.graphicsPipeline, null); TODO: loop through renderers and clean
         vkDestroyPipelineLayout(Variables.device, Variables.pipelineLayout, null);
         vkDestroyRenderPass(Variables.device, Variables.renderPass, null);
         Variables.swapChainImageViews.forEach(imageView -> vkDestroyImageView(Variables.device, imageView, null));
@@ -221,7 +221,7 @@ public class SwapchainManager {
         createSwapChain();
         ImageUtils.createImageViews();
         VKRenderManager.createRenderPass();
-        VKPipelineManager.createGraphicsPipeline();
+        //TODO: loop through all renderers and create shaders
         ImageUtils.createColorResources();
         ImageUtils.createDepthResources();
         Utils.createFramebuffers();

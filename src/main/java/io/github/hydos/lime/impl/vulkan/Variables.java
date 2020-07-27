@@ -44,8 +44,6 @@ public class Variables {
 
     public static long pipelineLayout;
 
-    public static long graphicsPipeline;
-
     public static long commandPool;
 
     public static long colorImage;
