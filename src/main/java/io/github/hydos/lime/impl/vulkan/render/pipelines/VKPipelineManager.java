@@ -6,9 +6,11 @@ import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 import io.github.hydos.lime.impl.vulkan.shaders.VKShaderManager;
 import io.github.hydos.lime.impl.vulkan.shaders.VKShaderUtils;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
+import io.github.hydos.lime.resource.Resource;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 
@@ -17,10 +19,10 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class VKPipelineManager {
 
-    public static long createGraphicsPipeline(String path) {
+    public static long createGraphicsPipeline(Resource vertexShader, Resource fragmentShader) throws IOException {
         try (MemoryStack stack = stackPush()) {
-            VKShaderUtils.SPIRV vertShaderSPIRV = VKShaderUtils.compileShaderFile(path + ".vert", VKShaderUtils.ShaderType.VERTEX_SHADER);
-            VKShaderUtils.SPIRV fragShaderSPIRV = VKShaderUtils.compileShaderFile(path + ".frag", VKShaderUtils.ShaderType.FRAGMENT_SHADER);
+            VKShaderUtils.SPIRV vertShaderSPIRV = VKShaderUtils.compileShader(vertexShader, VKShaderUtils.ShaderType.VERTEX_SHADER);
+            VKShaderUtils.SPIRV fragShaderSPIRV = VKShaderUtils.compileShader(fragmentShader, VKShaderUtils.ShaderType.FRAGMENT_SHADER);
 
             long vertShaderModule = VKShaderManager.createShaderModule(vertShaderSPIRV.bytecode());
             long fragShaderModule = VKShaderManager.createShaderModule(fragShaderSPIRV.bytecode());

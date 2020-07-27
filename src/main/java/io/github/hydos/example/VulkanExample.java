@@ -15,12 +15,14 @@ import io.github.hydos.lime.impl.vulkan.render.Frame;
 import io.github.hydos.lime.impl.vulkan.swapchain.SwapchainManager;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
 import io.github.hydos.lime.impl.vulkan.util.Utils;
+import io.github.hydos.lime.resource.Identifier;
+import io.github.hydos.lime.resource.Resource;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import java.io.File;
-import java.util.Objects;
+import java.io.IOException;
 
+import static io.github.hydos.lime.IDoNotKnow.GLOBAL_RESOURCE_MANAGER;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 import static org.lwjgl.vulkan.VK10.vkDeviceWaitIdle;
@@ -30,28 +32,30 @@ public class VulkanExample {
     RenderObject chalet;
     RenderObject dragon;
 
-    public VulkanExample() {
+    public VulkanExample() throws IOException {
         initWindow();
         initVulkan();
         runEngine();
         VulkanManager.getInstance().cleanup();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         new VulkanExample();
     }
 
-    private void loadModels() {
+    private void loadModels() throws IOException {
+        Resource charletModel = GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "models/chalet.obj")).get();
+        Resource dragonModel = GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "models/dragon.obj")).get();
 
-        File chaletModelFile = new File(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource("models/chalet.obj")).getFile());
-        File dragonModelFile = new File(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource("models/dragon.obj")).getFile());
-        dragon = ModelManager.createObject("textures/skybox/back.png", dragonModelFile, new Vector3f(-2, -1, 0), new Vector3f(), new Vector3f(0.3f, 0.3f, 0.3f));
+        Resource charletTexture = GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "textures/chalet.jpg")).get();
+        Resource dragonTexture = GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "textures/skybox/back.png")).get();
 
-        chalet = ModelManager.createObject("textures/chalet.jpg", chaletModelFile, new Vector3f(-2, -0.4f, 0.5f), new Vector3f(-90, 0, 0), new Vector3f(1f, 1f, 1f));
+        chalet = ModelManager.createObject(charletTexture, charletModel, new Vector3f(-2, -0.4f, 0.5f), new Vector3f(-90, 0, 0), new Vector3f(1f, 1f, 1f));
+        dragon = ModelManager.createObject(dragonTexture, dragonModel, new Vector3f(-2, -1, 0), new Vector3f(), new Vector3f(0.3f, 0.3f, 0.3f));
 
         VulkanManager.getInstance().entityRenderer.processEntity(chalet);
         VulkanManager.getInstance().entityRenderer.processEntity(dragon);
-        GuiManager.createUiElement(new Vector2f(0.5f, 0.5f), new Vector2f(1,1), "textures/skybox/back.png");
+        GuiManager.createUiElement(new Vector2f(0.5f, 0.5f), new Vector2f(1, 1), dragonTexture);
     }
 
     private void initWindow() {
@@ -63,7 +67,7 @@ public class VulkanExample {
         Variables.framebufferResize = true;
     }
 
-    private void initVulkan() {
+    private void initVulkan() throws IOException {
         VulkanReg.createInstance();
         VKWindow.createSurface();
         VulkanManager.init();

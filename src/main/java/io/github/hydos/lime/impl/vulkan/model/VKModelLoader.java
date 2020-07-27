@@ -46,7 +46,8 @@ public class VKModelLoader {
             file.FileSizeProc(pFile -> data.limit());
 
             return file.address();
-        }, (pFileIO, pFile) -> {}, MemoryUtil.NULL);
+        }, (pFileIO, pFile) -> {
+        }, MemoryUtil.NULL);
 
         return fileIo;
     }

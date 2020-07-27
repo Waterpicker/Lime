@@ -7,7 +7,6 @@ import io.github.hydos.lime.impl.vulkan.texture.VKTextureManager;
 import io.github.hydos.lime.resource.Resource;
 import org.joml.Vector3f;
 
-import java.io.File;
 import java.io.IOException;
 
 import static org.lwjgl.assimp.Assimp.aiProcess_DropNormals;

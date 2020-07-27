@@ -1,5 +1,6 @@
 package io.github.hydos.lime.impl.vulkan.render.renderers;
 
+import io.github.hydos.lime.IDoNotKnow;
 import io.github.hydos.lime.core.render.RenderObject;
 import io.github.hydos.lime.core.render.Renderer;
 import io.github.hydos.lime.impl.vulkan.Variables;
@@ -10,11 +11,14 @@ import io.github.hydos.lime.impl.vulkan.model.VKModelLoader;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 import io.github.hydos.lime.impl.vulkan.render.pipelines.VKPipelineManager;
 import io.github.hydos.lime.impl.vulkan.ubo.DescriptorManager;
+import io.github.hydos.lime.resource.Identifier;
+import io.github.hydos.lime.resource.Resource;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkCommandBuffer;
 
+import java.io.IOException;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +94,13 @@ public class EntityRenderer extends Renderer {
 
     @Override
     public void createShader() {
-        graphicsPipeline = VKPipelineManager.createGraphicsPipeline("shaders/entity");
+        Resource vertexShader = IDoNotKnow.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/entity.vert")).get();
+        Resource fragmentShader = IDoNotKnow.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/entity.frag")).get();
+
+        try {
+            graphicsPipeline = VKPipelineManager.createGraphicsPipeline(vertexShader, fragmentShader);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 }
