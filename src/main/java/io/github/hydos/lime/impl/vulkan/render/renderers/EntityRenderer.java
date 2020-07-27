@@ -28,7 +28,6 @@ public class EntityRenderer extends Renderer {
 
     public EntityRenderer() {
         entities = new ArrayList<>();
-        graphicsPipeline = VKPipelineManager.createGraphicsPipeline();
     }
 
     public void processEntity(RenderObject entity) {
@@ -86,6 +85,11 @@ public class EntityRenderer extends Renderer {
             vkCmdDrawIndexed(commandBuffer, mesh.vkMesh.indices.size(), 1, 0, 0, 0);
         }
 
+    }
+
+    @Override
+    public void createShader() {
+        graphicsPipeline = VKPipelineManager.createGraphicsPipeline();
     }
 
 

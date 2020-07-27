@@ -2,7 +2,9 @@ package io.github.hydos.lime.impl.vulkan.swapchain;
 
 import io.github.hydos.lime.core.io.Window;
 import io.github.hydos.lime.core.math.CitrusMath;
+import io.github.hydos.lime.core.render.Renderer;
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
 import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
 import io.github.hydos.lime.impl.vulkan.render.VKRenderManager;
@@ -221,6 +223,9 @@ public class SwapchainManager {
         createSwapChain();
         ImageUtils.createImageViews();
         VKRenderManager.createRenderPass();
+        for(Renderer renderer : VKRenderManager.getInstance().renderers){
+            renderer.createShader();
+        }
         //TODO: loop through all renderers and create shaders
         ImageUtils.createColorResources();
         ImageUtils.createDepthResources();
