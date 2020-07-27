@@ -4,6 +4,7 @@ import io.github.hydos.lime.core.io.Window;
 import io.github.hydos.lime.core.math.CitrusMath;
 import io.github.hydos.lime.core.render.Renderer;
 import io.github.hydos.lime.impl.vulkan.Variables;
+import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.VulkanManager;
 import io.github.hydos.lime.impl.vulkan.device.DeviceManager;
 import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
@@ -192,9 +193,7 @@ public class SwapchainManager {
 
             LongBuffer pSwapChain = stack.longs(VK_NULL_HANDLE);
 
-            if (vkCreateSwapchainKHR(Variables.device, createInfo, null, pSwapChain) != VK_SUCCESS) {
-                throw new RuntimeException("Failed to create swap chain");
-            }
+            VulkanError.failIfError(vkCreateSwapchainKHR(Variables.device, createInfo, null, pSwapChain));
 
             Variables.swapChain = pSwapChain.get(0);
 
