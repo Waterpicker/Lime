@@ -33,6 +33,7 @@ public class PlayerController {
         }
 
         rotation.y = Window.getNormalizedMouseCoordinates().y * 2;
+        rotation.z = -(Window.getNormalizedMouseCoordinates().x * 2);
         rotation.add(offsetRotation);
 
     }
