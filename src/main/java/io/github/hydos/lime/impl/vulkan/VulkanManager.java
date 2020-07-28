@@ -1,6 +1,6 @@
 package io.github.hydos.lime.impl.vulkan;
 
-import io.github.hydos.lime.IDoNotKnow;
+import io.github.hydos.lime.ResourceHandler;
 import io.github.hydos.lime.core.io.Window;
 import io.github.hydos.lime.impl.vulkan.elements.VulkanRenderObject;
 import io.github.hydos.lime.impl.vulkan.model.VKBufferMesh;
@@ -71,6 +71,6 @@ public class VulkanManager {
         }
 
         cleanupVulkan();
-        IDoNotKnow.GLOBAL_RESOURCE_MANAGER.invalidate();
+        ResourceHandler.GLOBAL_RESOURCE_MANAGER.invalidate();
     }
 }

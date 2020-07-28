@@ -1,6 +1,6 @@
 package io.github.hydos.lime.impl.vulkan.render.renderers;
 
-import io.github.hydos.lime.IDoNotKnow;
+import io.github.hydos.lime.ResourceHandler;
 import io.github.hydos.lime.core.render.RenderObject;
 import io.github.hydos.lime.core.render.Renderer;
 import io.github.hydos.lime.impl.vulkan.Variables;
@@ -50,7 +50,9 @@ public class EntityRenderer extends Renderer {
             processedMesh.vertices[i] = new VKVertex(
                     mesh.positions.get(i),
                     color,
-                    mesh.texCoords.get(i));
+                    mesh.texCoords.get(i),
+                    3
+            );
         }
 
         processedMesh.indices = new int[mesh.indices.size()];
@@ -94,8 +96,8 @@ public class EntityRenderer extends Renderer {
 
     @Override
     public void createShader() {
-        Resource vertexShader = IDoNotKnow.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/entity.vert")).get();
-        Resource fragmentShader = IDoNotKnow.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/entity.frag")).get();
+        Resource vertexShader = ResourceHandler.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/entity.vert")).get();
+        Resource fragmentShader = ResourceHandler.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/entity.frag")).get();
 
         try {
             graphicsPipeline = VKPipelineManager.createGraphicsPipeline(vertexShader, fragmentShader);

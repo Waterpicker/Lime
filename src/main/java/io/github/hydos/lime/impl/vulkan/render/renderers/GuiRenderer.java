@@ -1,6 +1,6 @@
 package io.github.hydos.lime.impl.vulkan.render.renderers;
 
-import io.github.hydos.lime.IDoNotKnow;
+import io.github.hydos.lime.ResourceHandler;
 import io.github.hydos.lime.core.render.Renderer;
 import io.github.hydos.lime.core.ui.GuiElement;
 import io.github.hydos.lime.core.ui.GuiManager;
@@ -61,8 +61,8 @@ public class GuiRenderer extends Renderer {
 
     @Override
     public void createShader() {
-        Resource vertexShader = IDoNotKnow.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/gui.vert")).get();
-        Resource fragmentShader = IDoNotKnow.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/gui.frag")).get();
+        Resource vertexShader = ResourceHandler.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/gui.vert")).get();
+        Resource fragmentShader = ResourceHandler.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/gui.frag")).get();
 
         try {
             graphicsPipeline = VKPipelineManager.createGraphicsPipeline(vertexShader, fragmentShader);

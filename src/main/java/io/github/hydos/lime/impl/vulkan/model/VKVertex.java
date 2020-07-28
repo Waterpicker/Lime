@@ -18,7 +18,7 @@ public class VKVertex {
     public Vector3fc color;
     public Vector2fc texCoords;
 
-    public VKVertex(Vector3fc pos, Vector3fc color, Vector2fc texCoords) {
+    public VKVertex(Vector3fc pos, Vector3fc color, Vector2fc texCoords, int positionsSize) {
         this.pos = pos;
         this.color = color;
         this.texCoords = texCoords;
