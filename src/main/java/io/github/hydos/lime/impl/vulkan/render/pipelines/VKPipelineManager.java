@@ -19,7 +19,7 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class VKPipelineManager {
 
-    public static long createGraphicsPipeline(Resource vertexShader, Resource fragmentShader) throws IOException {
+    public static long createGraphicsPipeline(Resource vertexShader, Resource fragmentShader, boolean is2D) throws IOException {
         try (MemoryStack stack = stackPush()) {
             VKShaderUtils.SPIRV vertShaderSPIRV = VKShaderUtils.compileShader(vertexShader, VKShaderUtils.ShaderType.VERTEX_SHADER);
             VKShaderUtils.SPIRV fragShaderSPIRV = VKShaderUtils.compileShader(fragmentShader, VKShaderUtils.ShaderType.FRAGMENT_SHADER);
@@ -48,8 +48,8 @@ public class VKPipelineManager {
             // VERTEX STAGE
             VkPipelineVertexInputStateCreateInfo vertexInputInfo = VkPipelineVertexInputStateCreateInfo.callocStack(stack);
             vertexInputInfo.sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO);
-            vertexInputInfo.pVertexBindingDescriptions(VKVertex.getBindingDescription());
-            vertexInputInfo.pVertexAttributeDescriptions(VKVertex.getAttributeDescriptions());
+            vertexInputInfo.pVertexBindingDescriptions(VKVertex.getBindingDescription(is2D));
+            vertexInputInfo.pVertexAttributeDescriptions(VKVertex.getAttributeDescriptions(is2D));
 
             // ASSEMBLY STAGE
             VkPipelineInputAssemblyStateCreateInfo inputAssembly = VkPipelineInputAssemblyStateCreateInfo.callocStack(stack);

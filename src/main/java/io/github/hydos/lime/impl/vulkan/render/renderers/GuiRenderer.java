@@ -65,7 +65,7 @@ public class GuiRenderer extends Renderer {
         Resource fragmentShader = ResourceHandler.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/gui.frag")).get();
 
         try {
-            graphicsPipeline = VKPipelineManager.createGraphicsPipeline(vertexShader, fragmentShader);
+            graphicsPipeline = VKPipelineManager.createGraphicsPipeline(vertexShader, fragmentShader, true);
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }

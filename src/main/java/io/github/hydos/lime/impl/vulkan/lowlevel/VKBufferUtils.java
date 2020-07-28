@@ -55,7 +55,7 @@ public class VKBufferUtils {
 
     public static void createVertexBuffer(VKBufferMesh processedMesh) {
         try (MemoryStack stack = stackPush()) {
-            long bufferSize = VKVertex.SIZEOF * processedMesh.vertices.length;
+            long bufferSize = VKVertex.getSIZEOF(false) * processedMesh.vertices.length;
 
             LongBuffer pBuffer = stack.mallocLong(1);
             LongBuffer pBufferMemory = stack.mallocLong(1);
@@ -72,7 +72,47 @@ public class VKBufferUtils {
 
             vkMapMemory(Variables.device, stagingBufferMemory, 0, bufferSize, 0, data);
             {
-                VKMemoryUtils.memcpy(data.getByteBuffer(0, (int) bufferSize), processedMesh.vertices);
+                VKMemoryUtils.memcpy(data.getByteBuffer(0, (int) bufferSize), processedMesh.vertices, false);
+            }
+            vkUnmapMemory(Variables.device, stagingBufferMemory);
+
+            VKBufferUtils.createBuffer(bufferSize,
+                    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                    VK_MEMORY_HEAP_DEVICE_LOCAL_BIT,
+                    pBuffer,
+                    pBufferMemory);
+
+            processedMesh.vertexBuffer = pBuffer.get(0);
+            processedMesh.vertexBufferMemory = pBufferMemory.get(0);
+
+            VKBufferUtils.copyBuffer(stagingBuffer, processedMesh.vertexBuffer, bufferSize);
+
+            vkDestroyBuffer(Variables.device, stagingBuffer, null);
+            vkFreeMemory(Variables.device, stagingBufferMemory, null);
+
+        }
+    }
+
+    public static void createVertexBuffer2D(VKBufferMesh processedMesh) {
+        try (MemoryStack stack = stackPush()) {
+            long bufferSize = VKVertex.getSIZEOF(true) * processedMesh.vertices.length;
+
+            LongBuffer pBuffer = stack.mallocLong(1);
+            LongBuffer pBufferMemory = stack.mallocLong(1);
+            VKBufferUtils.createBuffer(bufferSize,
+                    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                    pBuffer,
+                    pBufferMemory);
+
+            long stagingBuffer = pBuffer.get(0);
+            long stagingBufferMemory = pBufferMemory.get(0);
+
+            PointerBuffer data = stack.mallocPointer(1);
+
+            vkMapMemory(Variables.device, stagingBufferMemory, 0, bufferSize, 0, data);
+            {
+                VKMemoryUtils.memcpy(data.getByteBuffer(0, (int) bufferSize), processedMesh.vertices, true);
             }
             vkUnmapMemory(Variables.device, stagingBufferMemory);
 

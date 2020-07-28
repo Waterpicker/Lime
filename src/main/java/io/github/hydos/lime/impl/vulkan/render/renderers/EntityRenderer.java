@@ -50,8 +50,7 @@ public class EntityRenderer extends Renderer {
             processedMesh.vertices[i] = new VKVertex(
                     mesh.positions.get(i),
                     color,
-                    mesh.texCoords.get(i),
-                    3
+                    mesh.texCoords.get(i)
             );
         }
 
@@ -100,7 +99,7 @@ public class EntityRenderer extends Renderer {
         Resource fragmentShader = ResourceHandler.GLOBAL_RESOURCE_MANAGER.getResource(new Identifier("example", "shaders/entity.frag")).get();
 
         try {
-            graphicsPipeline = VKPipelineManager.createGraphicsPipeline(vertexShader, fragmentShader);
+            graphicsPipeline = VKPipelineManager.createGraphicsPipeline(vertexShader, fragmentShader, false);
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }

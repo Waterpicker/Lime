@@ -28,18 +28,31 @@ public class VKMemoryUtils {
         src.limit(src.capacity()).rewind();
     }
 
-    public static void memcpy(ByteBuffer buffer, VKVertex[] vertices) {
-        for (VKVertex vertex : vertices) {
-            buffer.putFloat(vertex.pos.x());
-            buffer.putFloat(vertex.pos.y());
-            buffer.putFloat(vertex.pos.z());
+    public static void memcpy(ByteBuffer buffer, VKVertex[] vertices, boolean is2D) {
+        if(is2D){
+            for (VKVertex vertex : vertices) {
+                buffer.putFloat(vertex.pos2D.x());
+                buffer.putFloat(vertex.pos2D.y());
 
-            buffer.putFloat(vertex.color.x());
-            buffer.putFloat(vertex.color.y());
-            buffer.putFloat(vertex.color.z());
+                buffer.putFloat(vertex.colour2D.x());
+                buffer.putFloat(vertex.colour2D.y());
 
-            buffer.putFloat(vertex.texCoords.x());
-            buffer.putFloat(vertex.texCoords.y());
+                buffer.putFloat(vertex.texCoords.x());
+                buffer.putFloat(vertex.texCoords.y());
+            }
+        }else{
+            for (VKVertex vertex : vertices) {
+                buffer.putFloat(vertex.pos3D.x());
+                buffer.putFloat(vertex.pos3D.y());
+                buffer.putFloat(vertex.pos3D.z());
+
+                buffer.putFloat(vertex.colour3D.x());
+                buffer.putFloat(vertex.colour3D.y());
+                buffer.putFloat(vertex.colour3D.z());
+
+                buffer.putFloat(vertex.texCoords.x());
+                buffer.putFloat(vertex.texCoords.y());
+            }
         }
     }
 
