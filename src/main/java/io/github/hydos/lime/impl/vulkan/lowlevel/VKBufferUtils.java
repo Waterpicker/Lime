@@ -3,6 +3,7 @@ package io.github.hydos.lime.impl.vulkan.lowlevel;
 import io.github.hydos.lime.impl.vulkan.Variables;
 import io.github.hydos.lime.impl.vulkan.VulkanError;
 import io.github.hydos.lime.impl.vulkan.model.CommandBufferManager;
+import io.github.hydos.lime.impl.vulkan.model.SimpleVKBufferMesh;
 import io.github.hydos.lime.impl.vulkan.model.VKBufferMesh;
 import io.github.hydos.lime.impl.vulkan.model.VKVertex;
 import org.lwjgl.PointerBuffer;
@@ -93,7 +94,7 @@ public class VKBufferUtils {
         }
     }
 
-    public static void createVertexBuffer2D(VKBufferMesh processedMesh) {
+    public static void createVertexBuffer2D(SimpleVKBufferMesh processedMesh) {
         try (MemoryStack stack = stackPush()) {
             long bufferSize = VKVertex.getSIZEOF(true) * processedMesh.vertices.length;
 

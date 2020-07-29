@@ -1,5 +1,6 @@
 package io.github.hydos.lime.core.ui;
 
+import io.github.hydos.lime.impl.vulkan.model.SimpleVKBufferMesh;
 import io.github.hydos.lime.impl.vulkan.model.VKBufferMesh;
 import org.joml.Vector2f;
 
@@ -9,5 +10,5 @@ public abstract class GuiElement {
     public boolean hidden;
     public int id;
 
-    public abstract VKBufferMesh getQuad();
+    public abstract SimpleVKBufferMesh getQuad();
 }

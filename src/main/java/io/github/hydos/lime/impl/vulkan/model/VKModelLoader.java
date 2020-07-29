@@ -123,7 +123,7 @@ public class VKModelLoader {
         }
     }
 
-    public static class VKMesh {
+    public static class VKMesh extends SimpleVKMesh{
         public final List<Vector3fc> positions;
         public final List<Vector2fc> texCoords;
         public final List<Integer> indices;
@@ -132,6 +132,16 @@ public class VKModelLoader {
             this.positions = new ArrayList<>();
             this.texCoords = new ArrayList<>();
             this.indices = new ArrayList<>();
+        }
+    }
+
+    public static class SimpleVKMesh {
+        public final List<Vector2fc> positions;
+        public final List<Vector2fc> texCoords;
+
+        public SimpleVKMesh() {
+            this.positions = new ArrayList<>();
+            this.texCoords = new ArrayList<>();
         }
     }
 }

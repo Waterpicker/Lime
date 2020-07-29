@@ -60,7 +60,7 @@ public class VulkanExample {
         VulkanManager.getInstance().entityRenderer.processEntity(chalet);
         VulkanManager.getInstance().entityRenderer.processEntity(dragon);
         VulkanManager.getInstance().entityRenderer.processEntity(obamaPrism);
-        GuiManager.createUiElement(new Vector2f(0.5f, 0.5f), new Vector2f(1, 1), dragonTexture);
+        GuiManager.addElement(GuiManager.createUiElement(new Vector2f(0.5f, 0.5f), new Vector2f(1, 1), obamaPrismTexture));
     }
 
     private void initWindow() {
